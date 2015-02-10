@@ -5,6 +5,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "importer.h"
+#include "matrixCalc.h"
 
 #define MAX_BONES 32
 #define MODEL_FILE "monkey_with_bones_y_up.dae"
@@ -45,6 +46,24 @@ void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
 
 int main(){
+
+	printf("***** TESTS MATRIXCALC *****\n");
+	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 vec12 = glm::vec3(0.0f, 0.0f, 2.0f);
+	glm::vec3 vec2 = glm::vec3(1.0f, 1.0f, 1.0f);
+	double angle = getRot(vec1, vec12, nul, vec2);
+	glm::vec3 translation = getTrans(vec1, nul);
+	glm::vec3 normal = getNormal(vec1, vec12, nul, vec2);
+	printf("Angle de la rotation : %f\n", angle);
+
+	float a = normal.x;
+	float b = normal.y;
+	float c = normal.z;
+	printf("Vecteur normal : (%f, %f, %f)\n", a, b, c);
+	printf("Translation : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
+	printf("***** FIN TESTS *****\n\n");
+
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
 	int width = 1024;

@@ -81,9 +81,11 @@
   <ItemGroup>
     <ClCompile Include="importer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="matrixCalc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importer.h" />
+    <ClInclude Include="matrixCalc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,9 +21,15 @@
     <ClCompile Include="importer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="matrixCalc.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importer.h">
+      <Filter>Fichiers sources</Filter>
+    </ClInclude>
+    <ClInclude Include="matrixCalc.h">
       <Filter>Fichiers sources</Filter>
     </ClInclude>
   </ItemGroup>
