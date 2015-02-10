@@ -102,6 +102,13 @@ int main(){
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+	glm::mat4 leftEarMat;
+	glm::mat4 rightEarMat;
+	glm::mat4 headMat;
+	float theta1 = 0.0f;
+	float theta2 = 0.0f;
+	float theta3 = 0.0f;
+
 
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -116,6 +123,53 @@ int main(){
 
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		/* Gere l'oreille gauche */
+		leftEarMat = glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
+			theta1 += 0.07f;
+			leftEarMat = glm::inverse(bone_offset_matrices[0]) * glm::rotate(leftEarMat, glm::radians(theta1), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(leftEarMat));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS){
+			theta1 -= 0.07f;
+			leftEarMat = glm::inverse(bone_offset_matrices[0]) * glm::rotate(leftEarMat, glm::radians(theta1), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(leftEarMat));
+		}
+
+		/* Gere la tete */
+		headMat = glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS){
+			theta3 += 0.07f;
+			headMat = glm::inverse(bone_offset_matrices[2]) * glm::rotate(headMat, glm::radians(theta3), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[2];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(headMat));
+		}
+		if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS){
+			theta3 -= 0.07f;
+			headMat = glm::inverse(bone_offset_matrices[2]) * glm::rotate(headMat, glm::radians(theta3), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[2];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(headMat));
+		}
+
+		/* Gere l'oreille droite */
+		rightEarMat = glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS){
+			theta2 += 0.07f;
+			rightEarMat = glm::inverse(bone_offset_matrices[1]) * glm::rotate(rightEarMat, glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[1];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(rightEarMat));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS){
+			theta2 -= 0.07f;
+			rightEarMat = glm::inverse(bone_offset_matrices[1]) * glm::rotate(rightEarMat, glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[1];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(rightEarMat));
+		}
 
 		/* Rotation du modèle */
 		rot1 = 0.0f;

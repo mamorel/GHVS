@@ -74,7 +74,7 @@ bool loadModel(const char* file_name,
 			texcoords[i * 2 + 1] = (GLfloat)vt->y;
 		}
 	}
-	/* exctract bone weights */
+	/* extract bone weights */
 	if (mesh->HasBones()){
 		*bone_ctr = (int)mesh->mNumBones;
 		bone_ids = (int*)malloc(*point_ctr * sizeof(int));
