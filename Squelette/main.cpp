@@ -47,6 +47,12 @@ GLuint createShader(GLenum type, const GLchar* src);
 
 int main(){
 
+	/*
+	Tableau de bones. Un bone = un tableau contenant 4 glm::vec3 (2 pts, une fois pour la frame n-1, une fois pour la frame n).
+	A chaque frame, on récupère les positions de tous les points, on met à jour le tableau de bones.
+	On calcule toutes les translations, normales et rotations. => Calcul des matrices de bones.
+	Nécessité de translater le bone à l'origine avant de lui appliquer la transformation ??
+	*/
 	printf("***** TESTS MATRIXCALC *****\n");
 	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f);
