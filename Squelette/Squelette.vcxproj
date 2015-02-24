@@ -52,7 +52,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\opengl-wrappers\assimp--3.0.1270-sdk\include;C:\opengl-wrappers\glm\glm;C:\opengl-wrappers\glfw\include\GLFW;C:\opengl-wrappers\glew\include\GL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\opengl-wrappers\pngwriter-0.5.4\src;C:\opengl-wrappers\assimp--3.0.1270-sdk\include;C:\opengl-wrappers\glm\glm;C:\opengl-wrappers\glfw\include\GLFW;C:\opengl-wrappers\glew\include\GL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -82,10 +82,12 @@
     <ClCompile Include="importer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrixCalc.cpp" />
+    <ClCompile Include="printScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importer.h" />
     <ClInclude Include="matrixCalc.h" />
+    <ClInclude Include="printScreen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

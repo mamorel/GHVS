@@ -6,6 +6,7 @@
 
 #include "importer.h"
 #include "matrixCalc.h"
+#include "printScreen.h"
 
 #define MAX_BONES 32
 #define MODEL_FILE "monkey_with_bones_y_up.dae"
@@ -134,7 +135,9 @@ int main(){
 	float theta2 = 0.0f;
 	float theta3 = 0.0f;
 
-
+	/* stocke les pixels */
+	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
+	
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
@@ -218,9 +221,21 @@ int main(){
 		glUseProgram(shaderProgram);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0,point_ctr);
-
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
+			printf("Début image write\n");
+			glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+			char name2[1024];
+			sprintf(name2, "screenshot.png");
+			unsigned char* last_row = pixels + (width * 3 * (height - 1));
+			if (!stbi_write_png(name2, width, height, 3, last_row, -3 * width)){
+				fprintf(stderr, "ERROR: could not write screenshot file %s\n", name2);
+			}
+			printf("Fin image write\n");
+		}
 	}
 
 	glDeleteProgram(shaderProgram);
