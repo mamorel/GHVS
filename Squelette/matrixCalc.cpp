@@ -31,3 +31,20 @@ glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mo
 	normal = normal / norm;
 	return normal;
 }
+
+/*
+glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+	double angl;
+	glm::vec3 transl;
+	glm::mat4 res;
+	glm::vec3 normal;
+
+	angl = getRot(ref1, ref2, mov1, mov2);
+	transl = getTrans(ref1, mov1);
+	normal = getNormal(ref1, ref2, mov1, mov2);
+	res = glm::translate(res, transl);
+	res = glm::rotate(res, glm::radians(angl), normal);
+
+	return res;
+}
+*/

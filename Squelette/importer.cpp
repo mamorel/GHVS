@@ -77,22 +77,22 @@ bool loadModel(const char* file_name,
 	/* extract bone weights */
 	if (mesh->HasBones()){
 		*bone_ctr = (int)mesh->mNumBones;
-		bone_ids = (int*)malloc(*point_ctr * sizeof(int));
+		bone_ids = (int*)malloc(*point_ctr * sizeof(int)); 
 		/* an array of bones names, max 256 bones, max name length 64 */
 		char bone_names[256][64];
 		printf("Bone informations : \n");
-		for (int b_i = 0; b_i < *bone_ctr; b_i++){
-			const aiBone* bone = mesh->mBones[b_i];
-			strcpy(bone_names[b_i], bone->mName.data);
-			printf("bone_names[%i] = %s\n", b_i, bone_names[b_i]);
-			bone_offset_mats[b_i] = convertAIMatrix(bone->mOffsetMatrix);
+		for (int b_i = 0; b_i < *bone_ctr; b_i++){ //pour tous les bones
+			const aiBone* bone = mesh->mBones[b_i]; //récupère un bone
+			strcpy(bone_names[b_i], bone->mName.data); //on copie son nom dans bone_names
+			printf("bone_names[%i] = %s\n", b_i, bone_names[b_i]); //affiche son nom
+			bone_offset_mats[b_i] = convertAIMatrix(bone->mOffsetMatrix); //récupère la matrice de transformation initiale
 
 			/* get weights */
-			int num_weights = (int)bone->mNumWeights;
-			for (int w_i = 0; w_i < num_weights; w_i++){
-				aiVertexWeight weight = bone->mWeights[w_i];
-				int vertex_id = (int)weight.mVertexId;
-				bone_ids[vertex_id] = b_i;
+			int num_weights = (int)bone->mNumWeights; //nombre de poids du bone considéré
+			for (int w_i = 0; w_i < num_weights; w_i++){ // pour chaque poids du bone
+				aiVertexWeight weight = bone->mWeights[w_i]; //récupère le poids w_i
+				int vertex_id = (int)weight.mVertexId; // le poids weight est lié à un vertex => vertex_id
+				bone_ids[vertex_id] = b_i; // le vertex vertex_id est influencé par le bone b_i
 			}
 		}
 	}

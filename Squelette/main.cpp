@@ -9,7 +9,7 @@
 #include "printScreen.h"
 
 #define MAX_BONES 32
-#define MODEL_FILE "monkey_with_bones_y_up.dae"
+#define MODEL_FILE "SweatCentered.dae"
 
 /* Shaders */
 const GLchar* vertexSource =
@@ -17,7 +17,7 @@ const GLchar* vertexSource =
 "layout(location = 0) in vec3 vpos;"
 "layout(location = 1) in vec3 vnormal;"
 "layout(location = 2) in vec2 vtexcoord;"
-"layout(location = 3) in int bone_id;"
+"layout(location = 3) in int bone_id;" // a changer pour un tableau de poids
 "out vec3 normal;"
 "out vec2 st;"
 
@@ -29,7 +29,7 @@ const GLchar* vertexSource =
 "void main(){"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * bone_matrices[bone_id] * vec4(vpos, 1.0);"
+"	gl_Position = proj * view * model * bone_matrices[bone_id] * vec4(vpos, 1.0);" // a changer : somme des poids[i] * bone_matrices[i]
 "}";
 
 const GLchar* fragmentSource =
@@ -55,10 +55,12 @@ int main(){
 	Nécessité de translater le bone à l'origine avant de lui appliquer la transformation ??
 	*/
 	printf("***** TESTS MATRIXCALC *****\n");
-	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 vec12 = glm::vec3(0.0f, 0.0f, 2.0f);
-	glm::vec3 vec2 = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f); /* origine 1 */
+	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f); /* extremite 1 */
+
+	glm::vec3 vec12 = glm::vec3(0.0f, 0.0f, 2.0f); /* origine 2 */
+	glm::vec3 vec2 = glm::vec3(1.0f, 1.0f, 1.0f); /* extremite 2 */
+
 	double angle = getRot(vec1, vec12, nul, vec2);
 	glm::vec3 translation = getTrans(vec1, nul);
 	glm::vec3 normal = getNormal(vec1, vec12, nul, vec2);
@@ -135,8 +137,12 @@ int main(){
 	float theta2 = 0.0f;
 	float theta3 = 0.0f;
 
+	
+
 	/* stocke les pixels */
 	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
+
+	int nbPrint = 0; // compte le nombre de captures d'écran
 	
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -226,15 +232,19 @@ int main(){
 		glfwPollEvents();
 
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
-			printf("Début image write\n");
+			nbPrint++;
+			printf("Début image write %d\n", nbPrint);
+			float t1 = glfwGetTime();
 			glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 			char name2[1024];
-			sprintf(name2, "screenshot.png");
+			sprintf(name2, "screenshot_%d.png", nbPrint);
 			unsigned char* last_row = pixels + (width * 3 * (height - 1));
 			if (!stbi_write_png(name2, width, height, 3, last_row, -3 * width)){
 				fprintf(stderr, "ERROR: could not write screenshot file %s\n", name2);
 			}
-			printf("Fin image write\n");
+			float t2 = glfwGetTime();
+			printf("Fin image write %d\n", nbPrint);
+			printf("temps a l'export %f s pour %ld pixels\n\n", t2 - t1, width*height);
 		}
 	}
 
