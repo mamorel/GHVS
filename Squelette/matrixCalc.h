@@ -6,6 +6,10 @@
 #endif
 #include <stdio.h>
 
-double getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
+
+float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
 glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov);
 glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
+glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
+void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices); 
+void readData(FILE* fichier, glm::vec3 ** Bones);

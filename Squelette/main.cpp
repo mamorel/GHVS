@@ -48,6 +48,22 @@ GLuint createShader(GLenum type, const GLchar* src);
 
 int main(){
 
+	glm::vec3 ** Bones;
+	glm::mat4 * bone_matrices = (glm::mat4 *)malloc(12 * sizeof(glm::mat4));
+	Bones = (glm::vec3 **)malloc(12 * sizeof(glm::vec3 *));
+	int b1;
+	for (b1 = 0; b1 < 12; b1++){
+		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
+	}
+
+	FILE* fichier = fopen("test.txt", "r");
+	if (fichier == NULL){
+		printf("ERROR loading the file\n");
+	}
+	readData(fichier, Bones);
+
+	updateData(Bones, bone_matrices);
+
 	/*
 	Tableau de bones. Un bone = un tableau contenant 4 glm::vec3 (2 pts, une fois pour la frame n-1, une fois pour la frame n).
 	A chaque frame, on récupère les positions de tous les points, on met à jour le tableau de bones.
