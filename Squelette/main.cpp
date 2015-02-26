@@ -22,6 +22,7 @@ const GLchar* vertexSource =
 "layout(location = 4) in vec4 weights;"
 "out vec3 normal;"
 "out vec2 st;"
+"out vec3 Weight;"
 
 "uniform mat4 model;"
 "uniform mat4 view;"
@@ -29,23 +30,23 @@ const GLchar* vertexSource =
 "uniform mat4 bone_matrices[32];"
 
 "void main(){"
+"	Weight.x = weights.x;"
+"	Weight.y = weights.y;"
+"	Weight.z = weights.z;"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	mat4 boneTrans = bone_matrices[bone_id[0]] * weights[0];"
-"	boneTrans += bone_matrices[bone_id[1]] * weights[1];"
-"	boneTrans += bone_matrices[bone_id[2]] * weights[2];"
-"	boneTrans += bone_matrices[bone_id[3]] * weights[3];"
-"	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
+"	gl_Position = proj * view * model * vec4(vpos, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
 "#version 410 core\n"
 "in vec3 normal;"
 "in vec2 st;"
+"in vec3 Weight;"
 "out vec4 outColor;"
 
 "void main(){"
-"	outColor = vec4(normal, 1.0);"
+"	outColor = vec4(Weight, 1.0);"
 "}";
 
 GLFWwindow* initGLFW(int width, int weight, char* title);

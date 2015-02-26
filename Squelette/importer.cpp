@@ -161,20 +161,20 @@ bool loadModel(const char* file_name,
 		free(texcoords);
 	}
 	if (mesh->HasBones()){
-		GLuint vbo; // liaison des bone_ids
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(bone_ids), bone_ids, GL_STATIC_DRAW);
-		glVertexAttribIPointer(3, 1, GL_INT, 0, NULL);
-		glEnableVertexAttribArray(3);
-		free(bone_ids);
 		GLuint vbo2; // même démarche pour faire le lien avec les weights
 		glGenBuffers(1, &vbo2);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo2);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(weights), weights, GL_STATIC_DRAW);
-		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 0, NULL);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 4, 0);
 		glEnableVertexAttribArray(4);
 		free(weights);
+		GLuint vbo; // liaison des bone_ids
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(bone_ids), bone_ids, GL_STATIC_DRAW);
+		glVertexAttribIPointer(3, 4, GL_INT, 0, NULL);
+		glEnableVertexAttribArray(3);
+		free(bone_ids);
 	}
 
 	aiReleaseImport(scene);
