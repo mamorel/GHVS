@@ -1,4 +1,5 @@
 #include "matrixCalc.h"
+extern int nb_bones;
 
 float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 
@@ -33,6 +34,7 @@ glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mo
 }
 
 
+/* Calcule la matrice de transf. d'un bone */
 glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	float angl =0.0f;
 	glm::vec3 transl;
@@ -49,9 +51,10 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	return res;
 }
 
+/* Calcule la matrice de transformation de chaque bone et la range dans le tableau correspodant */
 void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	int i;
-	for (i = 0; i < 12; i++){
+	for (i = 0; i < nb_bones; i++){
 		// Bones[i][0] = Bones[i][2];
 		// Bones[i][2] = ...; A compléter
 		// Bones[i][3] = ...; A compléter
@@ -59,19 +62,20 @@ void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	}
 }
 
+/* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(FILE* fichier, glm::vec3 ** Bones){
 	int i,j;
-	for (i = 0; i < 12; i++){
+	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][0].x, &Bones[i][0].y, &Bones[i][0].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][1].x, &Bones[i][1].y, &Bones[i][1].z);
-		if (i == (11)){
-			for (j = 0; j < 2 * 12; j++){
+		if (i == (nb_bones -1)){
+			for (j = 0; j < nb_bones; j++){
 				fscanf(fichier, "%f %f %f", &Bones[j][2].x, &Bones[j][2].y, &Bones[j][2].z);
 				fscanf(fichier, "%f %f %f", &Bones[j][3].x, &Bones[j][3].y, &Bones[j][3].z);
 			}
 		}
 	}
-	for (i = 0; i < 12; i++){
+	for (i = 0; i < nb_bones; i++){
 		Bones[i][0].x /= 2.0;
 		Bones[i][1].x /= 2.0;
 		Bones[i][0].y /= 1.6;

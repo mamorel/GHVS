@@ -9,7 +9,8 @@
 #include "printScreen.h"
 
 #define MAX_BONES 32
-#define MODEL_FILE "SweatCentered.dae"
+int nb_bones = 8;
+#define MODEL_FILE "Sweat8PaintedNamedNormal.dae"
 
 /* Shaders */
 const GLchar* vertexSource =
@@ -17,7 +18,8 @@ const GLchar* vertexSource =
 "layout(location = 0) in vec3 vpos;"
 "layout(location = 1) in vec3 vnormal;"
 "layout(location = 2) in vec2 vtexcoord;"
-"layout(location = 3) in int bone_id;" // a changer pour un tableau de poids
+"layout(location = 3) in vec4 bone_ids;"
+"layout(location = 4) in vec4 weights;"
 "out vec3 normal;"
 "out vec2 st;"
 
@@ -29,7 +31,11 @@ const GLchar* vertexSource =
 "void main(){"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * bone_matrices[bone_id] * vec4(vpos, 1.0);" // a changer : somme des poids[i] * bone_matrices[i]
+"	mat4 boneTrans = bone_matrices[bone_id[0]] * weights[0];"
+"	boneTrans += bone_matrices[bone_id[1]] * weights[1];"
+"	boneTrans += bone_matrices[bone_id[2]] * weights[2];"
+"	boneTrans += bone_matrices[bone_id[3]] * weights[3];"
+"	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -49,19 +55,18 @@ GLuint createShader(GLenum type, const GLchar* src);
 int main(){
 
 	glm::vec3 ** Bones;
-	glm::mat4 * bone_matrices = (glm::mat4 *)malloc(12 * sizeof(glm::mat4));
-	Bones = (glm::vec3 **)malloc(12 * sizeof(glm::vec3 *));
+	glm::mat4 * bone_matrices = (glm::mat4 *)malloc(nb_bones * sizeof(glm::mat4));
+	Bones = (glm::vec3 **)malloc(nb_bones * sizeof(glm::vec3 *));
 	int b1;
-	for (b1 = 0; b1 < 12; b1++){
+	for (b1 = 0; b1 < nb_bones; b1++){
 		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
 	}
 
-	FILE* fichier = fopen("test.txt", "r");
+	FILE* fichier = fopen("twoframes-8.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
 	readData(fichier, Bones);
-
 	updateData(Bones, bone_matrices);
 
 	/*
@@ -126,15 +131,15 @@ int main(){
 	char name[64];
 	for (int i = 0; i < MAX_BONES; i++){
 		sprintf(name, "bone_matrices[%i]", i);
-		bone_matrices_loc[i] = glGetUniformLocation(shaderProgram, name);
+		bone_matrices_loc[i] = glGetUniformLocation(shaderProgram, name); // bone_matrices_loc : matrices de bones dans le programme C
 		glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
 	}
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(3.0f, 3.0f, 3.0f),
+		glm::vec3(0.0f, 3.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
 
 	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
