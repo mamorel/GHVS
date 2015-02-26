@@ -46,8 +46,8 @@ bool loadModel(const char* file_name,
 	GLfloat* points = NULL; // array of vertex points
 	GLfloat* normals = NULL; // array of vertex normals
 	GLfloat* texcoords = NULL; // array of texture coordinates
-	GLint** bone_ids = NULL; // array of bone ids
-	GLfloat** weights = NULL; // array of weights
+	GLint* bone_ids = NULL; // array of bone ids
+	GLfloat* weights = NULL; // array of weights
 
 	if (mesh->HasPositions()) {
 		points = (GLfloat*)malloc(*point_ctr * 3 * sizeof(GLfloat));
@@ -86,13 +86,9 @@ bool loadModel(const char* file_name,
 	/* extract bone weights */
 	if (mesh->HasBones()){
 		*bone_ctr = (int)mesh->mNumBones;
-		bone_ids = (int**)malloc(*point_ctr * sizeof(int*));
-		weights = (float**)malloc(*point_ctr * sizeof(float*));
-		int us;
-		for (us = 0; us < *point_ctr; us++){
-			bone_ids[us] = (int*)malloc(4 * sizeof(int));
-			weights[us] = (float*)malloc(4 * sizeof(float));
-		}
+		bone_ids = (GLint*)malloc(4* (*point_ctr)  * sizeof(GLint*));
+		weights = (GLfloat*)malloc(4 * (*point_ctr) * sizeof(GLfloat));
+
 		/* an array of bones names, max 256 bones, max name length 64 */
 		char bone_names[256][64];
 		printf("Bone informations : \n");
@@ -107,8 +103,8 @@ bool loadModel(const char* file_name,
 			for (int w_i = 0; w_i < num_weights; w_i++){ // pour chaque poids du bone
 				aiVertexWeight weight = bone->mWeights[w_i]; //récupère le poids w_i
 				int vertex_id = (int)weight.mVertexId; // le poids weight est lié à un vertex => vertex_id
-				bone_ids[vertex_id][vertexBoneCtr[vertex_id]] = b_i; // le vertex vertex_id est influencé par le bone b_i
-				weights[vertex_id][vertexBoneCtr[vertex_id]] = (float)weight.mWeight;
+				bone_ids[4*vertex_id + vertexBoneCtr[vertex_id]] = (GLint)b_i; // le vertex vertex_id est influencé par le bone b_i
+				weights[4*vertex_id + vertexBoneCtr[vertex_id]] = (GLfloat)weight.mWeight;
 				vertexBoneCtr[vertex_id]++;
 			}
 		}
@@ -119,17 +115,16 @@ bool loadModel(const char* file_name,
 		if (vertexBoneCtr[jk] != 4){
 			int mq = vertexBoneCtr[jk];
 			while (mq < 4){
-				bone_ids[jk][mq] = 0;
-				weights[jk][mq] = 0.0f;
+				bone_ids[4*jk+mq] = (GLint)0;
+				weights[4*jk+mq] = (GLfloat)0.0;
 				mq++;
 			}
 		}
-		int sum = bone_ids[jk][0] + bone_ids[jk][1] + bone_ids[jk][2] + bone_ids[jk][3];
-		float sumW = weights[jk][0] + weights[jk][1] + weights[jk][2] + weights[jk][3];
+		int sum = bone_ids[4*jk+0] + bone_ids[4*jk+1] + bone_ids[4*jk+2] + bone_ids[4*jk+3];
+		float sumW = weights[4*jk+0] + weights[4*jk+1] + weights[4*jk+2] + weights[4*jk+3];
 		if ((sumW < 0.999f) || (sum < 0)){
-			printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
-		}
-				
+			//printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
+		}	
 	}
 
 	/* copy mesh data into VBOs */
@@ -164,14 +159,14 @@ bool loadModel(const char* file_name,
 		GLuint vbo2; // même démarche pour faire le lien avec les weights
 		glGenBuffers(1, &vbo2);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(weights), weights, GL_STATIC_DRAW);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 4, 0);
+		glBufferData(GL_ARRAY_BUFFER, 4* *point_ctr * sizeof(GLfloat), weights, GL_STATIC_DRAW);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 		glEnableVertexAttribArray(4);
 		free(weights);
 		GLuint vbo; // liaison des bone_ids
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(bone_ids), bone_ids, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 4* *point_ctr * sizeof(GLint), bone_ids, GL_STATIC_DRAW);
 		glVertexAttribIPointer(3, 4, GL_INT, 0, NULL);
 		glEnableVertexAttribArray(3);
 		free(bone_ids);
