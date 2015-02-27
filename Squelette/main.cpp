@@ -63,7 +63,7 @@ int main(){
 		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
 	}
 
-	FILE* fichier = fopen("twoframes-8.txt", "r");
+	FILE* fichier = fopen("twoframes-8-ordonne.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
@@ -97,6 +97,8 @@ int main(){
 
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
+	int screen_width = 1920;
+	int screen_height = 1080;
 	int width = 1024;
 	int height = 768;
 	GLFWwindow* window = initGLFW(width, height, "PACT");
@@ -152,14 +154,14 @@ int main(){
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-	glm::mat4 leftEarMat;
-	glm::mat4 rightEarMat;
-	glm::mat4 headMat;
+	float theta0 = 0.0f;
 	float theta1 = 0.0f;
 	float theta2 = 0.0f;
 	float theta3 = 0.0f;
-
-	
+	float theta4 = 0.0f;
+	float theta5 = 0.0f;
+	float theta6 = 0.0f;
+	float theta7 = 0.0f;
 
 	/* stocke les pixels */
 	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
@@ -172,6 +174,8 @@ int main(){
 
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
+		glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height));
+
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -180,51 +184,131 @@ int main(){
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/* Gere l'oreille gauche */
-		leftEarMat = glm::mat4(1.0f);
+		/* Gere bone 0 : tronc bas */
+		bone_matrices[0] = glm::mat4(1.0f);
 		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
-			theta1 += 0.07f;
-			leftEarMat = glm::inverse(bone_offset_matrices[0]) * glm::rotate(leftEarMat, glm::radians(theta1), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
+			theta0 += 0.07f;
+			bone_matrices[0] = glm::inverse(bone_offset_matrices[0]) * glm::rotate(bone_matrices[0], glm::radians(theta0), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(leftEarMat));
+			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(bone_matrices[0]));
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS){
-			theta1 -= 0.07f;
-			leftEarMat = glm::inverse(bone_offset_matrices[0]) * glm::rotate(leftEarMat, glm::radians(theta1), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
+			theta0 -= 0.07f;
+			bone_matrices[0] = glm::inverse(bone_offset_matrices[0]) * glm::rotate(bone_matrices[0], glm::radians(theta0), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[0];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(leftEarMat));
+			glUniformMatrix4fv(bone_matrices_loc[0], 1, GL_FALSE, glm::value_ptr(bone_matrices[0]));
 		}
 
-		/* Gere la tete */
-		headMat = glm::mat4(1.0f);
+		/* Gere bone 1 : tronc haut  */
+		bone_matrices[1]= glm::mat4(1.0f);
 		if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS){
-			theta3 += 0.07f;
-			headMat = glm::inverse(bone_offset_matrices[2]) * glm::rotate(headMat, glm::radians(theta3), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[2];
+			theta1 += 0.07f;
+			bone_matrices[1]= glm::inverse(bone_offset_matrices[1]) * glm::rotate(bone_matrices[1], glm::radians(theta1), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[1];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(headMat));
+			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(bone_matrices[1]));
 		}
 		if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS){
-			theta3 -= 0.07f;
-			headMat = glm::inverse(bone_offset_matrices[2]) * glm::rotate(headMat, glm::radians(theta3), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[2];
+			theta1 -= 0.07f;
+			bone_matrices[1] = glm::inverse(bone_offset_matrices[1]) * glm::rotate(bone_matrices[1], glm::radians(theta1), glm::vec3(1.0f, 0.0f, 0.0f)) * bone_offset_matrices[1];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(headMat));
+			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(bone_matrices[1]));
 		}
 
-		/* Gere l'oreille droite */
-		rightEarMat = glm::mat4(1.0f);
+		/* Gere bone 2 : epaule gauche */
+		bone_matrices[2]= glm::mat4(1.0f);
 		if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS){
 			theta2 += 0.07f;
-			rightEarMat = glm::inverse(bone_offset_matrices[1]) * glm::rotate(rightEarMat, glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[1];
+			bone_matrices[2]= glm::inverse(bone_offset_matrices[2]) * glm::rotate(bone_matrices[2], glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[2];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(rightEarMat));
+			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(bone_matrices[2]));
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS){
 			theta2 -= 0.07f;
-			rightEarMat = glm::inverse(bone_offset_matrices[1]) * glm::rotate(rightEarMat, glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[1];
+			bone_matrices[2] = glm::inverse(bone_offset_matrices[2]) * glm::rotate(bone_matrices[2], glm::radians(theta2), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[2];
 			glUseProgram(shaderProgram);
-			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(rightEarMat));
+			glUniformMatrix4fv(bone_matrices_loc[2], 1, GL_FALSE, glm::value_ptr(bone_matrices[2]));
+		}
+
+		/* Gere bone 3 : epaule droite */
+		bone_matrices[3]= glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS){
+			theta3 += 0.07f;
+			bone_matrices[3]= glm::inverse(bone_offset_matrices[3]) * glm::rotate(bone_matrices[3], glm::radians(theta3), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[3];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[3], 1, GL_FALSE, glm::value_ptr(bone_matrices[3]));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS){
+			theta3 -= 0.07f;
+			bone_matrices[3] = glm::inverse(bone_offset_matrices[3]) * glm::rotate(bone_matrices[3], glm::radians(theta3), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[3];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[3], 1, GL_FALSE, glm::value_ptr(bone_matrices[3]));
+		}
+
+		/* Gere bone 4 : bras droit */
+		bone_matrices[4]= glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS){
+			theta4 += 0.07f;
+			bone_matrices[4]= glm::inverse(bone_offset_matrices[4]) * glm::rotate(bone_matrices[4], glm::radians(theta4), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[4];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[4], 1, GL_FALSE, glm::value_ptr(bone_matrices[4]));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS){
+			theta4 -= 0.07f;
+			bone_matrices[4] = glm::inverse(bone_offset_matrices[4]) * glm::rotate(bone_matrices[4], glm::radians(theta4), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[4];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[4], 1, GL_FALSE, glm::value_ptr(bone_matrices[4]));
+		}
+
+		/* Gere bone 5 : avant-bras droit */
+		bone_matrices[5]= glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+			theta5 += 0.07f;
+			bone_matrices[5] = glm::inverse(bone_offset_matrices[5]) * glm::rotate(bone_matrices[5], glm::radians(theta5), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[5];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[5], 1, GL_FALSE, glm::value_ptr(bone_matrices[5]));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS){
+			theta5 -= 0.07f;
+			bone_matrices[5] = glm::inverse(bone_offset_matrices[5]) * glm::rotate(bone_matrices[5], glm::radians(theta5), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[5];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[5], 1, GL_FALSE, glm::value_ptr(bone_matrices[5]));
+		}
+
+		/* Gere bone 6 : bras gauche */
+		bone_matrices[6]= glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
+			theta6 += 0.07f;
+			bone_matrices[6] = glm::inverse(bone_offset_matrices[6]) * glm::rotate(bone_matrices[6], glm::radians(theta6), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[6];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[6], 1, GL_FALSE, glm::value_ptr(bone_matrices[6]));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
+			theta6 -= 0.07f;
+			bone_matrices[6] = glm::inverse(bone_offset_matrices[6]) * glm::rotate(bone_matrices[6], glm::radians(theta6), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[6];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[6], 1, GL_FALSE, glm::value_ptr(bone_matrices[6]));
+		}
+
+		/* Gere bone 7 : avant-bras gauche */
+		bone_matrices[7] = glm::mat4(1.0f);
+		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
+			theta7 += 0.07f;
+			bone_matrices[7] = glm::inverse(bone_offset_matrices[7]) * glm::rotate(bone_matrices[7], glm::radians(theta7), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[7];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[7], 1, GL_FALSE, glm::value_ptr(bone_matrices[7]));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
+			theta7 -= 0.07f;
+			bone_matrices[7] = glm::inverse(bone_offset_matrices[7]) * glm::rotate(bone_matrices[7], glm::radians(theta7), glm::vec3(0.0f, 1.0f, 0.0f)) * bone_offset_matrices[7];
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(bone_matrices_loc[7], 1, GL_FALSE, glm::value_ptr(bone_matrices[7]));
 		}
 
 		/* Rotation du modèle */
@@ -243,7 +327,7 @@ int main(){
 			rot2 -= 0.07f;
 
 		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		glUseProgram(shaderProgram);
@@ -286,6 +370,7 @@ GLFWwindow* initGLFW(int width, int height, char* title){
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	// glfwWindowHint(GLFW_DECORATED, GL_FALSE); // enleve decoration fenetre
 
 	return glfwCreateWindow(width, height, title, NULL, NULL);
 }

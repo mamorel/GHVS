@@ -172,6 +172,7 @@ bool loadModel(const char* file_name,
 		free(bone_ids);
 	}
 
+	free(vertexBoneCtr);
 	aiReleaseImport(scene);
 	printf("\nmodel loaded\n");
 
