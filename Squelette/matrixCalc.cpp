@@ -62,6 +62,14 @@ void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	}
 }
 
+/*void initData(glm::vec3 ** Bones){
+	int i;
+	for (i = 0; i < nb_bones; i++){
+		Bones[i][0] = ;
+		Bones[i][1] = ;
+	}
+}*/
+
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(FILE* fichier, glm::vec3 ** Bones){
 	int i,j;
