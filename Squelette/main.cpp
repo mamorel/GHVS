@@ -95,7 +95,7 @@ int main(){
 		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
 	}
 
-	FILE* fichier = fopen("twoframes-8-ordonne.txt", "r");
+	FILE* fichier = fopen("essaiTransfoRepere.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
@@ -201,16 +201,15 @@ int main(){
 		-1.467, 0.097, -0.281,}; // main droite (13)
 
 	float bone_positions2[] = {
-		0.032856, 0.332399, 0.320275,
-		0.035243, 0.289181, 0.301720,
-		0.029831, 0.560144, 0.313045,
-		0.110536, 0.500815, 0.324895,
-		0.147102, 0.330123, 0.337955,
-		0.146239, 0.177250, 0.308040,
-		-0.052512, 0.488559, 0.310645,
-		-0.080178, 0.320882, 0.298330,
-		-0.075125, 0.175687, 0.264535,
-
+		0.031702, -0.305855, 0.561678,
+		-0.053113, -0.306185, 0.490401,
+		-0.136382, -0.286400, 0.348958,
+		-0.212196, -0.227865, 0.227038,
+		0.032215, -0.317140, 0.336961,
+		0.033871, -0.300125, 0.293703,
+		0.110854, -0.314255, 0.495051,
+		0.269807, -0.312715, 0.207836,
+		0.192558, -0.337995, 0.328809,
 	};
 
 	GLuint bones_vao;
@@ -221,7 +220,7 @@ int main(){
 	glBindBuffer(GL_ARRAY_BUFFER, bones_vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		3 * (bone_ctr+2) * sizeof(float),
+		3 * (bone_ctr+1) * sizeof(float),
 		bone_positions,
 		GL_STATIC_DRAW
 		);
@@ -497,6 +496,8 @@ int main(){
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUseProgram(shaderProgramB);
 		glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
+		glUseProgram(shaderProgramB2);
+		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(shaderProgram);
@@ -514,7 +515,7 @@ int main(){
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glUseProgram(shaderProgramB2);
 		glBindVertexArray(bones_vao2);
-		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
+		glDrawArrays(GL_POINTS, 0, bone_ctr + 1);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 		
 		glfwSwapBuffers(window);
