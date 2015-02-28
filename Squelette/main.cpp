@@ -86,6 +86,13 @@ int main(){
 	//readData(fichier, Bones);
 	//updateData(Bones, bone_matrices);
 
+	FILE* fichier2 = fopen("init_exploit-ord.txt", "r");
+	if (fichier2 == NULL){
+		printf("Error loading the init file\n");
+	}
+	
+	initData(Bones, fichier2);
+
 	/*
 	Tableau de bones. Un bone = un tableau contenant 4 glm::vec3 (2 pts, une fois pour la frame n-1, une fois pour la frame n).
 	A chaque frame, on récupère les positions de tous les points, on met à jour le tableau de bones.
@@ -132,6 +139,7 @@ int main(){
 	loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
 	printf("\nNombre de bones : %i\n", bone_ctr);
 
+	/* Teste si on peut récupérer les positions initiales des bones dans le fichier COLLADA 
 	int i, j;
 	for (i = 0; i < 8; i++){
 		for (j = 0; j < 3; j++){
@@ -139,10 +147,12 @@ int main(){
 		}
 		printf("\n");
 	}
+	*/
 
 	/* create a buffer of bone positions for visualising the bones */
+	/* 
 	int c0 = 0;
-	/*for (int i = 0; i < bone_ctr; i++) {
+	for (int i = 0; i < bone_ctr; i++) {
 
 		// get the x y z translation elements from the last column in the array
 		bone_positions[c0++] = -bone_offset_matrices[i][3][0];
@@ -150,12 +160,22 @@ int main(){
 		bone_positions[c0++] = -bone_offset_matrices[i][3][2];
 		}*/
 
-	// float bone_positions[] = { 0.0f, 0.0f, 0.0f, 0.002, -0.020, -0.406, -0.007, 0.021, 0.999, 0.021, 0.017, 0.982, 0.401, -0.017, 0.872,
-	//	-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
+	/* Ancienne version 
+	float bone_positions[] = { 0.0f, 0.0f, 0.0f, 0.002, -0.020, -0.406, -0.007, 0.021, 0.999, 0.021, 0.017, 0.982, 0.401, -0.017, 0.872,
+	-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
+	*/
 
-	float bone_positions[] = {0.024, -0.019, -0.970,  0.022, 0.0, -0.564, 0.044, 0.018, 0.418, 0.015, 0.022, 0.435, 
-	-0.420, 0.050, 0.283, -0.944, 0.075, 0.033, 0.423, -0.17, 0.308, 0.925, -0.074, 0.028,
-	1.356, -0.135, -0.223, -1.467, 0.097, -0.281};
+	float bone_positions[] = {
+		0.044, 0.018, 0.418, // cou gauche (2)
+		0.015, 0.022, 0.435, // cou droit (2)
+		0.022, 0.0, -0.564, // tronc haut (3)
+		0.024, -0.019, -0.970,  // tronc bas (4)
+		0.423, -0.17, 0.308, // epaule gauche (7)
+		0.925, -0.074, 0.028, // coude gauche (8)
+		1.356, -0.135, -0.223, // main gauche (9)
+		-0.420, 0.050, 0.283, // epaule droite (11)
+		-0.944, 0.075, 0.033, // coude droit (12)
+		-1.467, 0.097, -0.281}; // main droite (13)
 
 	GLuint bones_vao;
 	glGenVertexArrays(1, &bones_vao);
