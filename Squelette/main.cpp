@@ -10,7 +10,7 @@
 
 #define MAX_BONES 32
 int nb_bones = 8;
-#define MODEL_FILE "Sweat8PaintedNamedNormal.dae"
+#define MODEL_FILE "Sweat8PaintedNormalizedTest5.dae"
 
 /* Shaders */
 const GLchar* fragmentSourceB =
@@ -26,7 +26,7 @@ const GLchar* vertexSourceB =
 "uniform mat4 proj, view, model;"
 "void main() {"
 "	gl_PointSize = 10.0;"
-"	gl_Position = proj * view * model * vec4(vp, 1.0);"
+"	gl_Position = proj * view * vec4(vp, 1.0);"
 "}";
 
 const GLchar* vertexSource =
@@ -54,23 +54,6 @@ const GLchar* vertexSource =
 "	normal = vnormal;"
 "	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
 "}";
-
-const GLchar* vertexBoneSource =
-"#version 410 core\n"
-"layout(location = 0) in vec3 vp;"
-"uniform mat4 proj, view;"
-"void main() {"
-"	gl_PointSize = 2.0;"
-"	gl_Position = proj * view * vec4(vp, 1.0);"
-"}";
-
-const GLchar* fragBoneSource = 
-"#version 410 core\n"
-"out vec4 frag_colour;"
-"void main() {"
-"	frag_colour = vec4(1.0, 1.0, 0.0, 1.0);"
-"}";
-
 
 const GLchar* fragmentSource =
 "#version 410 core\n"
@@ -149,7 +132,7 @@ int main(){
 	loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
 	printf("\nNombre de bones : %i\n", bone_ctr);
 
-	int i,j;
+	int i, j;
 	for (i = 0; i < 8; i++){
 		for (j = 0; j < 3; j++){
 			printf("(3, %d) = %f\n", j, (float)bone_offset_matrices[i][3][j]);
@@ -165,9 +148,13 @@ int main(){
 		bone_positions[c0++] = -bone_offset_matrices[i][3][0];
 		bone_positions[c0++] = -bone_offset_matrices[i][3][1];
 		bone_positions[c0++] = -bone_offset_matrices[i][3][2];
-	}*/
-	float bone_positions[] = { 0.0f, 0.0f, 0.0f, 0.002, -0.020, -0.406, -0.007, 0.021, 0.999, 0.021, 0.017, 0.982, 0.401, -0.017, 0.872,
-		-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
+		}*/
+	// float bone_positions[] = { 0.0f, 0.0f, 0.0f, 0.002, -0.020, -0.406, -0.007, 0.021, 0.999, 0.021, 0.017, 0.982, 0.401, -0.017, 0.872,
+	//	-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
+
+	float bone_positions[] = {0.024, -0.019, -0.970,  0.022, 0.0, -0.564, 0.044, 0.018, 0.418, 0.015, 0.022, 0.435, 
+	-0.420, 0.050, 0.283, -0.944, 0.075, 0.033, 0.423, -0.17, 0.308, 0.925, -0.074, 0.028};
+
 	GLuint bones_vao;
 	glGenVertexArrays(1, &bones_vao);
 	glBindVertexArray(bones_vao);
@@ -214,7 +201,7 @@ int main(){
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 3.0f, 3.0f),
+		glm::vec3(0.0f, 5.0f, 1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -256,6 +243,7 @@ int main(){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		nbFrame++;
+		/* permet de controler la vitesse de rotation */
 		static double prevSec = glfwGetTime();
 		double curSec = glfwGetTime();
 		double gap = curSec - prevSec;
@@ -265,13 +253,13 @@ int main(){
 
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
-		glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height));
-
+		//glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height));
+		/*
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 		glViewport(0, 0, width, height);
-
+		*/
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
