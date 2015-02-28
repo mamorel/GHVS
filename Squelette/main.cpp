@@ -117,10 +117,13 @@ int main(){
 	printf("\n");
 	*/
 
-	/* Teste fonction getTrans */
+	/* Teste fonctions matrices */
 	for (h = 0; h < nb_bones; h++){
-		glm::vec3 tr = getTrans(Bones[h][0], Bones[h][2]);
-		printf("tr %d : (%f, %f, %f)\n", h, tr[0], tr[1], tr[2]);
+		glm::vec3 c1 = Bones[h][1] - Bones[h][0];
+		glm::vec3 c2 = Bones[h][3] - Bones[h][2];
+		printf("vec1 : (%f, %f, %f)\nvec2 : (%f, %f, %f)\n", c1.x, c1.y, c1.z, c2.x, c2.y, c2.z);
+		glm::vec3 th = getNormal(Bones[h][0], Bones[h][1], Bones[h][2], Bones[h][3]);
+		printf("\tnormale %d : (%f, %f, %f)\n\n", h, th[0], th[1], th[2]);
 	}
 
 	printf("***** TESTS MATRIXCALC *****\n");
@@ -268,7 +271,7 @@ int main(){
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 2.0f, 1.0f),
+		glm::vec3(0.0f, 4.0f, 4.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -533,7 +536,7 @@ int main(){
 
 				int l;
 				for (l = 0; l < nb_bones; l++){
-					bone_matrices[l] = glm::inverse(bone_offset_matrices[l]) * bone_matrices[l] * bone_offset_matrices[l];
+					bone_matrices[l] = bone_matrices[l];
 					glUseProgram(shaderProgram);
 					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 				}

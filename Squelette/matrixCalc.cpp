@@ -46,7 +46,7 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	normal = getNormal(ref1, ref2, mov1, mov2);
 
 	res = glm::translate(res, transl);
-	//res = glm::rotate((glm::mat4)res, glm::radians(angl), (glm::vec3)normal);
+	res = glm::rotate((glm::mat4)res, glm::radians(angl), (glm::vec3)normal);
 
 	return res;
 }
