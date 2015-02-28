@@ -74,31 +74,41 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(FILE* fichier, glm::vec3 ** Bones){
+	FILE* fichier3 = fopen("frame1Kinect.txt", "w");
+	if (fichier3 == NULL){
+		printf("Error opening\n");
+		exit(1);
+	}
 	int i,j;
 	for (i = 0; i < nb_bones; i++){
-		fscanf(fichier, "%f %f %f", &Bones[i][0].x, &Bones[i][0].y, &Bones[i][0].z);
-		fscanf(fichier, "%f %f %f", &Bones[i][1].x, &Bones[i][1].y, &Bones[i][1].z);
-		if (i == (nb_bones -1)){
+		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
+		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
+/*		if (i == (nb_bones -1)){
 			for (j = 0; j < nb_bones; j++){
 				fscanf(fichier, "%f %f %f", &Bones[j][2].x, &Bones[j][2].y, &Bones[j][2].z);
 				fscanf(fichier, "%f %f %f", &Bones[j][3].x, &Bones[j][3].y, &Bones[j][3].z);
 			}
 		}
+*/
 	}
 	for (i = 0; i < nb_bones; i++){
-		Bones[i][0].x /= 2.0;
+/*		Bones[i][0].x /= 2.0;
 		Bones[i][1].x /= 2.0;
 		Bones[i][0].y /= 1.6;
 		Bones[i][1].y /= 1.6;
 		Bones[i][0].z = (Bones[i][0].z - 2.0) / 2.0;
 		Bones[i][1].z = (Bones[i][1].z - 2.0) / 2.0;
-		Bones[i][2].x /= 2.0;
+*/
+/*		Bones[i][2].x /= 2.0;
 		Bones[i][3].x /= 2.0;
 		Bones[i][2].y /= 1.6;
 		Bones[i][3].y /= 1.6;
 		Bones[i][2].z = (Bones[i][2].z - 2.0) / 2.0;
 		Bones[i][3].z = (Bones[i][3].z - 2.0) / 2.0;
-		printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
+*/
+//		printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
 		printf("Bone %d, frame 2. \n\tnew1 = (%f, %f, %f)\n\tnew2 = (%f, %f, %f)\n\n", i, Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
+		fprintf(fichier3, "%f %f %f\n%f %f %f\n", Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
 	}
+	fclose(fichier3);
 }

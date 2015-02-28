@@ -13,6 +13,22 @@ int nb_bones = 8;
 #define MODEL_FILE "Sweat8PaintedNormalizedTest5.dae"
 
 /* Shaders */
+const GLchar* fragmentSourceB2 =
+"#version 410 core\n"
+"out vec4 frag_colour;"
+"void main() {"
+"	frag_colour = vec4(1.0, 0.0, 0.0, 1.0);"
+"}";
+
+const GLchar* vertexSourceB2 =
+"#version 410 core\n"
+"layout(location = 0) in vec3 vp;"
+"uniform mat4 proj, view, model;"
+"void main() {"
+"	gl_PointSize = 3.0;"
+"	gl_Position = proj * view * model * vec4(vp, 1.0);"
+"}";
+
 const GLchar* fragmentSourceB =
 "#version 410 core\n"
 "out vec4 frag_colour;"
@@ -26,7 +42,7 @@ const GLchar* vertexSourceB =
 "uniform mat4 proj, view, model;"
 "void main() {"
 "	gl_PointSize = 10.0;"
-"	gl_Position = proj * view * vec4(vp, 1.0);"
+"	gl_Position = proj * view * model * vec4(vp, 1.0);"
 "}";
 
 const GLchar* vertexSource =
@@ -83,8 +99,6 @@ int main(){
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
-	//readData(fichier, Bones);
-	//updateData(Bones, bone_matrices);
 
 	FILE* fichier2 = fopen("init_exploit-ord.txt", "r");
 	if (fichier2 == NULL){
@@ -92,13 +106,22 @@ int main(){
 	}
 	
 	initData(Bones, fichier2);
+	readData(fichier, Bones);
+	
+	/* Teste fonction getRot */
+	int h;
+	for (h = 0; h < nb_bones; h++){
+		float th = getRot(Bones[h][0], Bones[h][1], Bones[h][2], Bones[h][3]);
+		printf("th%d : %f\n", h, th);
+	}
+	printf("\n");
 
-	/*
-	Tableau de bones. Un bone = un tableau contenant 4 glm::vec3 (2 pts, une fois pour la frame n-1, une fois pour la frame n).
-	A chaque frame, on récupère les positions de tous les points, on met à jour le tableau de bones.
-	On calcule toutes les translations, normales et rotations. => Calcul des matrices de bones.
-	Nécessité de translater le bone à l'origine avant de lui appliquer la transformation ??
-	*/
+	/* Teste fonction getTrans */
+	for (h = 0; h < nb_bones; h++){
+		glm::vec3 tr = getTrans(Bones[h][0], Bones[h][2]);
+		printf("tr : (%f, %f, %f)\n", tr[0], tr[1], tr[2]);
+	}
+
 	printf("***** TESTS MATRIXCALC *****\n");
 	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f); /* origine 1 */
 	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f); /* extremite 1 */
@@ -175,7 +198,20 @@ int main(){
 		1.356, -0.135, -0.223, // main gauche (9)
 		-0.420, 0.050, 0.283, // epaule droite (11)
 		-0.944, 0.075, 0.033, // coude droit (12)
-		-1.467, 0.097, -0.281}; // main droite (13)
+		-1.467, 0.097, -0.281,}; // main droite (13)
+
+	float bone_positions2[] = {
+		0.032856, 0.332399, 0.320275,
+		0.035243, 0.289181, 0.301720,
+		0.029831, 0.560144, 0.313045,
+		0.110536, 0.500815, 0.324895,
+		0.147102, 0.330123, 0.337955,
+		0.146239, 0.177250, 0.308040,
+		-0.052512, 0.488559, 0.310645,
+		-0.080178, 0.320882, 0.298330,
+		-0.075125, 0.175687, 0.264535,
+
+	};
 
 	GLuint bones_vao;
 	glGenVertexArrays(1, &bones_vao);
@@ -200,6 +236,29 @@ int main(){
 	glBindFragDataLocation(shaderProgramB, 0, "outColor");
 	glLinkProgram(shaderProgramB);
 
+	GLuint bones_vao2;
+	glGenVertexArrays(1, &bones_vao2);
+	glBindVertexArray(bones_vao2);
+	GLuint bones_vbo2;
+	glGenBuffers(1, &bones_vbo2);
+	glBindBuffer(GL_ARRAY_BUFFER, bones_vbo2);
+	glBufferData(
+		GL_ARRAY_BUFFER,
+		3 * (bone_ctr + 2) * sizeof(float),
+		bone_positions2,
+		GL_STATIC_DRAW
+		);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
+	GLuint vertexShaderB2 = createShader(GL_VERTEX_SHADER, vertexSourceB2);
+	GLuint fragmentShaderB2 = createShader(GL_FRAGMENT_SHADER, fragmentSourceB2);
+
+	GLuint shaderProgramB2 = glCreateProgram();
+	glAttachShader(shaderProgramB2, vertexShaderB2);
+	glAttachShader(shaderProgramB2, fragmentShaderB2);
+	glBindFragDataLocation(shaderProgramB2, 0, "outColor");
+	glLinkProgram(shaderProgramB2);
+
 	/* Gestion des shaders */
 	GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
 	GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
@@ -223,7 +282,7 @@ int main(){
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 5.0f, 1.0f),
+		glm::vec3(0.0f, 2.0f, 1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -254,17 +313,22 @@ int main(){
 	GLint bones_model_mat_location = glGetUniformLocation(shaderProgramB, "model");
 	glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
 
+	glUseProgram(shaderProgramB2);
+	GLint bones_view_mat_location2 = glGetUniformLocation(shaderProgramB2, "view");
+	glUniformMatrix4fv(bones_view_mat_location2, 1, GL_FALSE, glm::value_ptr(view));
+	GLint bones_proj_mat_location2 = glGetUniformLocation(shaderProgramB2, "proj");
+	glUniformMatrix4fv(bones_proj_mat_location2, 1, GL_FALSE, glm::value_ptr(proj));
+	GLint bones_model_mat_location2 = glGetUniformLocation(shaderProgramB2, "model");
+	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
 	/* stocke les pixels */
 	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
 
 	int nbPrint = 0; // compte le nombre de captures d'écran
-	int nbFrame = 0;
 
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		nbFrame++;
 		/* permet de controler la vitesse de rotation */
 		static double prevSec = glfwGetTime();
 		double curSec = glfwGetTime();
@@ -305,14 +369,12 @@ int main(){
 		bone_matrices[1] = glm::mat4(1.0f);
 		if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS){
 			theta1 += 10.0f*gap;
-			printf("theta1 apres +: %f (frame %d)\n", theta1, nbFrame);
 			bone_matrices[1]= glm::inverse(bone_offset_matrices[1]) * glm::translate(bone_matrices[1], glm::vec3(0, 0, theta1)) * bone_offset_matrices[1];
 			glUseProgram(shaderProgram);
 			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(bone_matrices[1]));
 		}
 		if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS){
 			theta1 -= 10.0f*gap;
-			printf("theta1 apres -: %f (frame %d)\n", theta1, nbFrame);
 			bone_matrices[1] = glm::inverse(bone_offset_matrices[1]) * glm::translate(bone_matrices[1], glm::vec3(0, 0, theta1)) * bone_offset_matrices[1];
 			glUseProgram(shaderProgram);
 			glUniformMatrix4fv(bone_matrices_loc[1], 1, GL_FALSE, glm::value_ptr(bone_matrices[1]));
@@ -429,9 +491,12 @@ int main(){
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 			rot2 -= 0.07f;
 
+		glUseProgram(shaderProgram);
 		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUseProgram(shaderProgramB);
+		glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
 
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(shaderProgram);
@@ -443,6 +508,13 @@ int main(){
 		glUseProgram(shaderProgramB);
 		glBindVertexArray(bones_vao);
 		glDrawArrays(GL_POINTS, 0, bone_ctr+2);
+		glDisable(GL_PROGRAM_POINT_SIZE);
+
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glUseProgram(shaderProgramB2);
+		glBindVertexArray(bones_vao2);
+		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 		
 		glfwSwapBuffers(window);
@@ -462,6 +534,22 @@ int main(){
 			float t2 = glfwGetTime();
 			printf("Fin image write %d\n", nbPrint);
 			printf("temps a l'export %f s pour %ld pixels\n\n", t2 - t1, width*height);
+		}
+
+		static int counter = 0;
+		if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
+			counter++;
+			if (counter == 1){
+				printf("Updating matrices.\n");
+				updateData(Bones, bone_matrices);
+
+				int l;
+				for (l = 0; l < nb_bones; l++){
+					bone_matrices[l] = glm::inverse(bone_offset_matrices[l]) * bone_matrices[l] * bone_offset_matrices[l];
+					glUseProgram(shaderProgram);
+					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
+				}
+			}
 		}
 	}
 
