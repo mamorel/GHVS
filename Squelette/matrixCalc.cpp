@@ -1,6 +1,7 @@
 #include "matrixCalc.h"
 extern int nb_bones;
 
+/* obtient l'angle de rotation */
 float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 
 	glm::vec3 ref = ref2 - ref1;
@@ -18,12 +19,14 @@ float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	return theta;
 }
 
+/* obtient le vecteur translation */
 glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 
 	glm::vec3 translation = mov - ref;
 	return translation;
 }
 
+/* calcule la normale */
 glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
@@ -61,6 +64,7 @@ void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	}
 }
 
+/* range dans le tableau des os les positions des os par défaut du modèle (pose au repos) */
 void initData(glm::vec3 ** Bones, FILE* fichier){
 	int i, j;
 	for (i = 0; i < nb_bones; i++){

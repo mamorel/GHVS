@@ -13,6 +13,8 @@ int nb_bones = 8;
 #define MODEL_FILE "Sweat8PaintedNormalizedTest5.dae"
 
 /* Shaders */
+
+/* Shader pour les points de la Kinect destination */
 const GLchar* fragmentSourceB2 =
 "#version 410 core\n"
 "out vec4 frag_colour;"
@@ -29,6 +31,7 @@ const GLchar* vertexSourceB2 =
 "	gl_Position = proj * view * model * vec4(vp, 1.0);"
 "}";
 
+/* Shaders representant les os initiaux*/
 const GLchar* fragmentSourceB =
 "#version 410 core\n"
 "out vec4 frag_colour;"
@@ -45,6 +48,7 @@ const GLchar* vertexSourceB =
 "	gl_Position = proj * view * model * vec4(vp, 1.0);"
 "}";
 
+/* Shaders pour le vetement */
 const GLchar* vertexSource =
 "#version 410 core\n"
 "layout(location = 0) in vec3 vpos;"
@@ -87,6 +91,7 @@ GLuint createShader(GLenum type, const GLchar* src);
 
 int main(){
 
+	/* Le tableau de bones : contiendra les positions des os */
 	glm::vec3 ** Bones;
 	glm::mat4 * bone_matrices = (glm::mat4 *)malloc(nb_bones * sizeof(glm::mat4));
 	Bones = (glm::vec3 **)malloc(nb_bones * sizeof(glm::vec3 *));
@@ -95,16 +100,19 @@ int main(){
 		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
 	}
 
+	/* test sur un jeu de données kinect enregistre en txt pour traitement */
 	FILE* fichier = fopen("bones-ordonnesTestSam.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
 
+	/* positions initiales des os du modele dans un txt pour traitement */
 	FILE* fichier2 = fopen("init_exploit-ordSam.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 	}
 	
+	/* charge les données précédentes */
 	initData(Bones, fichier2);
 	readData(fichier, Bones);
 	
@@ -131,6 +139,7 @@ int main(){
 	printf("Translation : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
 	printf("***** FIN TESTS *****\n\n");
 
+	/* variables */
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
 	int screen_width = 1920;
@@ -141,6 +150,7 @@ int main(){
 	glfwMakeContextCurrent(window);
 	initGLEW();
 
+	/* le vao du vetement */
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -178,6 +188,7 @@ int main(){
 	-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
 	*/
 
+	/* Les positions des os du modele de vetement et des données Kinect pour representation */
 	float bone_positions[] = {
 		0.044, 0.018, 0.418, // cou gauche (2)
 		0.015, 0.022, 0.435, // cou droit (2)
@@ -202,6 +213,8 @@ int main(){
 		0.192558, -0.337995, 0.328809,
 	};
 
+
+	/* Le vao, vbo, programme pour les os du modele */
 	GLuint bones_vao;
 	glGenVertexArrays(1, &bones_vao);
 	glBindVertexArray(bones_vao);
@@ -225,6 +238,7 @@ int main(){
 	glBindFragDataLocation(shaderProgramB, 0, "outColor");
 	glLinkProgram(shaderProgramB);
 
+	/* de même pour les os Kinect */
 	GLuint bones_vao2;
 	glGenVertexArrays(1, &bones_vao2);
 	glBindVertexArray(bones_vao2);
@@ -248,7 +262,7 @@ int main(){
 	glBindFragDataLocation(shaderProgramB2, 0, "outColor");
 	glLinkProgram(shaderProgramB2);
 
-	/* Gestion des shaders */
+	/* Gestion des shaders du modele de vetement */
 	GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
 	GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
 
@@ -269,6 +283,7 @@ int main(){
 		glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
 	}
 
+	/* Les matrices model, view, projection sont initialisées */
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = glm::lookAt(
 		glm::vec3(0.0f, 4.0f, 4.0f),
@@ -285,6 +300,7 @@ int main(){
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+	/* variables permettant une gestion des os au clavier */
 	float theta0 = 0.0f;
 	float theta1 = 0.0f;
 	float theta2 = 0.0f;
@@ -294,6 +310,7 @@ int main(){
 	float theta6 = 0.0f;
 	float theta7 = 0.0f;
 
+	/* lien avec les uniform mat des 2 shaders d'os */
 	glUseProgram(shaderProgramB);
 	GLint bones_view_mat_location = glGetUniformLocation(shaderProgramB, "view");
 	glUniformMatrix4fv(bones_view_mat_location, 1, GL_FALSE, glm::value_ptr(view));
@@ -310,7 +327,7 @@ int main(){
 	GLint bones_model_mat_location2 = glGetUniformLocation(shaderProgramB2, "model");
 	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
-	/* stocke les pixels */
+	/* stocke les pixels des captures d'écran */
 	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
 
 	int nbPrint = 0; // compte le nombre de captures d'écran
@@ -324,17 +341,15 @@ int main(){
 		double gap = curSec - prevSec;
 		prevSec = curSec;
 
-		//while (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){}
-
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
 		//glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height));
-		/*
+		
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 		glViewport(0, 0, width, height);
-		*/
+		
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -484,16 +499,19 @@ int main(){
 		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+
 		glUseProgram(shaderProgramB);
 		glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
 		glUseProgram(shaderProgramB2);
 		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
+		/* on dessine le vetement */
 		glEnable(GL_DEPTH_TEST);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0,point_ctr);
 
+		/* puis les positions des os */
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glUseProgram(shaderProgramB);
@@ -511,6 +529,7 @@ int main(){
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
+		/* pour faire une capture d'écran */
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
 			nbPrint++;
 			printf("Début image write %d\n", nbPrint);
@@ -527,6 +546,7 @@ int main(){
 			printf("temps a l'export %f s pour %ld pixels\n\n", t2 - t1, width*height);
 		}
 
+		/* variable statique permettant de ne faire qu'une seule mise a jour */
 		static int counter = 0;
 		if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
 			counter++;
