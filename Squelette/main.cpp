@@ -149,11 +149,13 @@ int main(){
 		bone_positions[c0++] = -bone_offset_matrices[i][3][1];
 		bone_positions[c0++] = -bone_offset_matrices[i][3][2];
 		}*/
+
 	// float bone_positions[] = { 0.0f, 0.0f, 0.0f, 0.002, -0.020, -0.406, -0.007, 0.021, 0.999, 0.021, 0.017, 0.982, 0.401, -0.017, 0.872,
 	//	-0.442, 0.049, 0.847, -0.966, 0.074, 0.597, 0.903, -0.075, 0.592 };
 
 	float bone_positions[] = {0.024, -0.019, -0.970,  0.022, 0.0, -0.564, 0.044, 0.018, 0.418, 0.015, 0.022, 0.435, 
-	-0.420, 0.050, 0.283, -0.944, 0.075, 0.033, 0.423, -0.17, 0.308, 0.925, -0.074, 0.028};
+	-0.420, 0.050, 0.283, -0.944, 0.075, 0.033, 0.423, -0.17, 0.308, 0.925, -0.074, 0.028,
+	1.356, -0.135, -0.223, -1.467, 0.097, -0.281};
 
 	GLuint bones_vao;
 	glGenVertexArrays(1, &bones_vao);
@@ -163,7 +165,7 @@ int main(){
 	glBindBuffer(GL_ARRAY_BUFFER, bones_vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		3 * bone_ctr * sizeof(float),
+		3 * (bone_ctr+2) * sizeof(float),
 		bone_positions,
 		GL_STATIC_DRAW
 		);
@@ -420,7 +422,7 @@ int main(){
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glUseProgram(shaderProgramB);
 		glBindVertexArray(bones_vao);
-		glDrawArrays(GL_POINTS, 0, bone_ctr);
+		glDrawArrays(GL_POINTS, 0, bone_ctr+2);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 		
 		glfwSwapBuffers(window);
