@@ -110,16 +110,17 @@ int main(){
 	
 	/* Teste fonction getRot */
 	int h;
-	for (h = 0; h < nb_bones; h++){
+	/*for (h = 0; h < nb_bones; h++){
 		float th = getRot(Bones[h][0], Bones[h][1], Bones[h][2], Bones[h][3]);
 		printf("th%d : %f\n", h, th);
 	}
 	printf("\n");
+	*/
 
 	/* Teste fonction getTrans */
 	for (h = 0; h < nb_bones; h++){
 		glm::vec3 tr = getTrans(Bones[h][0], Bones[h][2]);
-		printf("tr : (%f, %f, %f)\n", tr[0], tr[1], tr[2]);
+		printf("tr %d : (%f, %f, %f)\n", h, tr[0], tr[1], tr[2]);
 	}
 
 	printf("***** TESTS MATRIXCALC *****\n");
