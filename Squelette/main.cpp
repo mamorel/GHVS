@@ -95,12 +95,12 @@ int main(){
 		Bones[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
 	}
 
-	FILE* fichier = fopen("essaiTransfoRepere.txt", "r");
+	FILE* fichier = fopen("bones-ordonnesTestSam.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
 
-	FILE* fichier2 = fopen("init_exploit-ord.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-ordSam.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 	}
@@ -123,21 +123,7 @@ int main(){
 	}
 
 	printf("***** TESTS MATRIXCALC *****\n");
-	glm::vec3 nul = glm::vec3(0.0f, 0.0f, 0.0f); /* origine 1 */
-	glm::vec3 vec1 = glm::vec3(0.0f, 0.0f, 1.0f); /* extremite 1 */
-
-	glm::vec3 vec12 = glm::vec3(0.0f, 0.0f, 2.0f); /* origine 2 */
-	glm::vec3 vec2 = glm::vec3(1.0f, 1.0f, 1.0f); /* extremite 2 */
-
-	double angle = getRot(vec1, vec12, nul, vec2);
-	glm::vec3 translation = getTrans(vec1, nul);
-	glm::vec3 normal = getNormal(vec1, vec12, nul, vec2);
-	printf("Angle de la rotation : %f\n", angle);
-
-	float a = normal.x;
-	float b = normal.y;
-	float c = normal.z;
-	printf("Vecteur normal : (%f, %f, %f)\n", a, b, c);
+	glm::vec3 translation = getTrans(Bones[0][0], Bones[0][2]);
 	printf("Translation : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
 	printf("***** FIN TESTS *****\n\n");
 

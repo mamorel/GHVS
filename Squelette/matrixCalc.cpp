@@ -46,7 +46,7 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	normal = getNormal(ref1, ref2, mov1, mov2);
 
 	res = glm::translate(res, transl);
-	res = glm::rotate((glm::mat4)res, glm::radians(angl), (glm::vec3)normal);
+	//res = glm::rotate((glm::mat4)res, glm::radians(angl), (glm::vec3)normal);
 
 	return res;
 }
@@ -73,7 +73,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(FILE* fichier, glm::vec3 ** Bones){
-	FILE* fichier3 = fopen("renduTraitement.txt", "w");
+	FILE* fichier3 = fopen("bones-ordonnesTestSam---.txt", "w");
 	if (fichier3 == NULL){
 		printf("Error opening\n");
 		exit(1);
@@ -98,6 +98,7 @@ void readData(FILE* fichier, glm::vec3 ** Bones){
 		Bones[i][0].z = (Bones[i][0].z - 2.0) / 2.0;
 		Bones[i][1].z = (Bones[i][1].z - 2.0) / 2.0;
 */
+		/*
 		float intZ1 = Bones[i][2].z;
 		float intZ2 = Bones[i][3].z;
 		Bones[i][2].x /= 2.0;
@@ -106,10 +107,10 @@ void readData(FILE* fichier, glm::vec3 ** Bones){
 		Bones[i][3].z = (Bones[i][3].y) / 1.6;
 		Bones[i][2].y = -(intZ1 - 2.0)/2.0;
 		Bones[i][3].y = -(intZ2 -2.0)/2.0;
-
+*/
 //		printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
 		printf("Bone %d, frame 2. \n\tnew1 = (%f, %f, %f)\n\tnew2 = (%f, %f, %f)\n\n", i, Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
-		fprintf(fichier3, "%f %f %f\n%f %f %f\n", Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
+		//fprintf(fichier3, "%f %f %f\n%f %f %f\n", Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
 	}
 	fclose(fichier3);
 }
