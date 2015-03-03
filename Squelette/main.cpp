@@ -8,9 +8,11 @@
 #include "matrixCalc.h"
 #include "printScreen.h"
 
+/* Continuer modification peinture, régler problème de scaling ! */
+
 #define MAX_BONES 32
 int nb_bones = 8;
-#define MODEL_FILE "Sweat8PaintedNormalizedTest5R3.dae"
+#define MODEL_FILE "Sweat8PaintedNormalizedTest5RP.dae"
 
 /* Shaders */
 

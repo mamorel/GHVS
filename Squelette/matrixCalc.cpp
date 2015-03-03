@@ -54,7 +54,7 @@ glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mo
 glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	float angl =0.0f;
 	glm::vec3 transl;
-	glm::mat4 res;
+	glm::mat4 res = glm::mat4(1.0f);
 	glm::vec3 normal;
 	glm::vec3 scale;
 
@@ -63,8 +63,8 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	normal = getNormal(ref1, ref2, mov1, mov2);
 	scale = getScale(ref1, ref2, mov1, mov2);
 
-	res = glm::scale(res, scale); //NE DOIT PAS ETRE MODIFIE PAR LES POIDS ?
-	res = glm::rotate(res, -angl, normal);
+	//res = glm::scale(res, scale);
+	//res = glm::rotate(res, -angl, normal);
 	res = glm::translate(res, transl);
 	return res;
 }
