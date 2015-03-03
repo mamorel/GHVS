@@ -12,7 +12,7 @@
 
 #define MAX_BONES 32
 int nb_bones = 8;
-#define MODEL_FILE "Sweat8PaintedNormalizedTest5RP.dae"
+#define MODEL_FILE "Sweat8PaintedNormalizedTest5Retry9.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
 
 /* Shaders */
 
@@ -84,7 +84,7 @@ const GLchar* fragmentSource =
 "out vec4 outColor;"
 
 "void main(){"
-"	outColor = vec4(normal, 1.0);"
+"	outColor = vec4(0.5-normal-0.5, 1.0);"
 "}";
 
 GLFWwindow* initGLFW(int width, int weight, char* title);

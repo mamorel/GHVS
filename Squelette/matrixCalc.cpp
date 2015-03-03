@@ -63,8 +63,8 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	normal = getNormal(ref1, ref2, mov1, mov2);
 	scale = getScale(ref1, ref2, mov1, mov2);
 
-	//res = glm::scale(res, scale);
-	//res = glm::rotate(res, -angl, normal);
+	res = glm::rotate(res, -angl, normal);
+	res = glm::scale(res, scale);
 	res = glm::translate(res, transl);
 	return res;
 }
