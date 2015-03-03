@@ -1,6 +1,19 @@
 #include "matrixCalc.h"
 extern int nb_bones;
 
+glm::vec3 getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+	glm::vec3 ref = ref2 - ref1;
+	glm::vec3 mov = mov2 - mov1;
+	float s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
+
+	glm::vec3 scalingVec = glm::vec3(s, s, s);
+	/*scalingMat[0][0] = sX;
+	scalingMat[1][1] = sY;
+	scalingMat[2][2] = sZ;
+	*/
+	return scalingVec;
+}
+
 /* obtient l'angle de rotation */
 float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 
@@ -43,14 +56,16 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	glm::vec3 transl;
 	glm::mat4 res;
 	glm::vec3 normal;
+	glm::vec3 scale;
 
 	angl = getRot(ref1, ref2, mov1, mov2);
 	transl = getTrans(ref1, mov1);
 	normal = getNormal(ref1, ref2, mov1, mov2);
+	scale = getScale(ref1, ref2, mov1, mov2);
 
+	res = glm::scale(res, scale); //NE DOIT PAS ETRE MODIFIE PAR LES POIDS ?
+	res = glm::rotate(res, -angl, normal);
 	res = glm::translate(res, transl);
-	res = glm::rotate((glm::mat4)res, glm::radians(angl), (glm::vec3)normal);
-
 	return res;
 }
 

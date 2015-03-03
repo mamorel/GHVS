@@ -10,7 +10,7 @@
 
 #define MAX_BONES 32
 int nb_bones = 8;
-#define MODEL_FILE "Sweat8PaintedNormalizedTest5.dae"
+#define MODEL_FILE "Sweat8PaintedNormalizedTest5R3.dae"
 
 /* Shaders */
 
@@ -107,7 +107,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-ordSam.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-mard.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 	}
@@ -127,11 +127,13 @@ int main(){
 
 	/* Teste fonctions matrices */
 	for (h = 0; h < nb_bones; h++){
-		glm::vec3 c1 = Bones[h][1] - Bones[h][0];
-		glm::vec3 c2 = Bones[h][3] - Bones[h][2];
+		glm::vec3 c0 = Bones[h][0];
+		glm::vec3 c1 = Bones[h][1];
+		glm::vec3 c2 = Bones[h][2];
+		glm::vec3 c3 = Bones[h][3];
 		printf("vec1 : (%f, %f, %f)\nvec2 : (%f, %f, %f)\n", c1.x, c1.y, c1.z, c2.x, c2.y, c2.z);
-		glm::vec3 th = getNormal(Bones[h][0], Bones[h][1], Bones[h][2], Bones[h][3]);
-		printf("\tnormale %d : (%f, %f, %f)\n\n", h, th[0], th[1], th[2]);
+		float th = getRot(c0, c1, c2, c3);
+		printf("\trotation %d : %f\n\n", h, th*180/3.1415);
 	}
 
 	printf("***** TESTS MATRIXCALC *****\n");
@@ -223,7 +225,7 @@ int main(){
 	glBindBuffer(GL_ARRAY_BUFFER, bones_vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		3 * (bone_ctr+1) * sizeof(float),
+		3 * (bone_ctr+2) * sizeof(float),
 		bone_positions,
 		GL_STATIC_DRAW
 		);
@@ -285,13 +287,15 @@ int main(){
 
 	/* Les matrices model, view, projection sont initialisées */
 	glm::mat4 model = glm::mat4(1.0f);
+
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 4.0f, 4.0f),
+		glm::vec3(0.0f, 2.5f, 1.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
 
 	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	GLint uniView = glGetUniformLocation(shaderProgram, "view");
@@ -499,7 +503,7 @@ int main(){
 		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-
+		
 		glUseProgram(shaderProgramB);
 		glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
 		glUseProgram(shaderProgramB2);
@@ -523,7 +527,7 @@ int main(){
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glUseProgram(shaderProgramB2);
 		glBindVertexArray(bones_vao2);
-		glDrawArrays(GL_POINTS, 0, bone_ctr + 1);
+		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 		
 		glfwSwapBuffers(window);
@@ -562,6 +566,7 @@ int main(){
 				}
 			}
 		}
+
 	}
 
 	glDeleteProgram(shaderProgram);

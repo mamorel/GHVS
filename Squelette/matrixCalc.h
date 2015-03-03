@@ -14,3 +14,4 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices); 
 void readData(FILE* fichier, glm::vec3 ** Bones);
 void initData(glm::vec3 ** Bones, FILE* fichier);
+glm::vec3 getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
