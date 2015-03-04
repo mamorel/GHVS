@@ -67,6 +67,12 @@ const GLchar* vertexSource =
 "uniform mat4 bone_matrices[32];"
 
 "void main(){"
+"mat3 window_scale = mat3("
+"vec3(0.90, 0.0, 0.0),"
+"vec3(0.0, 0.90, 0.0),"
+//"vec4(0.0, 0.0, 0.50, 0.0),"
+"vec3(0.0, 0.0, 9.0)"
+");"
 "	mat4 boneTrans;"
 "	boneTrans = bone_matrices[bone_ids[0]] * weights[0];"
 "	boneTrans += bone_matrices[bone_ids[1]] * weights[1];"
@@ -141,6 +147,19 @@ int main(){
 	printf("***** TESTS MATRIXCALC *****\n");
 	glm::vec3 translation = getTrans(Bones[0][0], Bones[0][2]);
 	printf("Translation : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
+	/*
+	glm::vec3 d1 = Bones[0][0];
+	glm::vec3 d2 = Bones[0][1];
+	glm::vec3 d3 = Bones[0][2];
+	glm::vec3 d4 = Bones[0][3];
+	glm::mat4 scal = glm::mat4(1.0f);
+	scal = glm::scale(scal, getScale(d1, d2, d3, d4));
+	int i, j;
+	for (i = 0; i < 4; i++){
+		for (j = 0; j < 4; j++){
+			printf("scale = %lf\n", scal[i]);
+		}
+	}*/
 	printf("***** FIN TESTS *****\n\n");
 
 	/* variables */
@@ -316,7 +335,7 @@ int main(){
 	float theta6 = 0.0f;
 	float theta7 = 0.0f;
 
-	/* lien avec les uniform mat des 2 shaders d'os */
+	/* lien avec les uniform mat des 2 shaders des os */
 	glUseProgram(shaderProgramB);
 	GLint bones_view_mat_location = glGetUniformLocation(shaderProgramB, "view");
 	glUniformMatrix4fv(bones_view_mat_location, 1, GL_FALSE, glm::value_ptr(view));
@@ -338,9 +357,37 @@ int main(){
 
 	int nbPrint = 0; // compte le nombre de captures d'écran
 
+	FILE* commande;
+	char ordre = '1';
+	char ordrePrecedent = '0';
+	float time = 0.0f;
+
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
+		/*
+		do{
+			time = glfwGetTime();
+			commande = fopen("commandeOuverture.txt", "r");
+			if (commande == NULL){
+				printf("error reading commande java\n");
+			}
+			ordrePrecedent = ordre;
+			fscanf(commande, "%c", &ordre);
+			fclose(commande);
+			if (time > 5){
+				ordre = '1';
+			}
+
+			if (ordrePrecedent == '1' && ordre == '0'){
+				glfwHideWindow(window);
+			}
+
+		} while (ordre == '0');
+
+		glfwShowWindow(window);
+		*/
+
 		/* permet de controler la vitesse de rotation */
 		static double prevSec = glfwGetTime();
 		double curSec = glfwGetTime();

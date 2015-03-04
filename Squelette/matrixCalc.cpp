@@ -1,6 +1,7 @@
 #include "matrixCalc.h"
 extern int nb_bones;
 
+
 glm::vec3 getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
@@ -12,6 +13,19 @@ glm::vec3 getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov
 	scalingMat[2][2] = sZ;
 	*/
 	return scalingVec;
+}
+
+glm::mat4 getScale2(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+	glm::vec3 ref = ref2 - ref1;
+	glm::vec3 mov = mov2 - mov1;
+
+	float sX = mov.x / ref.x;
+	float sY = mov.y / ref.y;
+	float sZ = mov.z / ref.z;
+
+	glm::mat4 mat = glm::mat4(sX, 0, 0, 0, 0, sY, 0, 0, 0, 0, sZ, 0, 0, 0, 0, 1);
+
+	return mat;
 }
 
 /* obtient l'angle de rotation */
@@ -35,7 +49,10 @@ float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 /* obtient le vecteur translation */
 glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 
-	glm::vec3 translation = mov - ref;
+	glm::vec3 translation;
+	translation.x  = (mov - ref).x * 1.0/0.8;
+	translation.y = (mov - ref).y * 1.0 / 0.8;
+	translation.z = (mov - ref).z * 1.0 / 0.8;
 	return translation;
 }
 
@@ -63,10 +80,14 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	normal = getNormal(ref1, ref2, mov1, mov2);
 	scale = getScale(ref1, ref2, mov1, mov2);
 
-	res = glm::rotate(res, -angl, normal);
-	res = glm::scale(res, scale);
+	//res = glm::scale(res, scale);
 	res = glm::translate(res, transl);
+	res = glm::rotate(res, -angl, normal);
 	return res;
+}
+
+void scaleData(glm::vec3 ** Bones){
+
 }
 
 /* Calcule la matrice de transformation de chaque bone et la range dans le tableau correspodant */
