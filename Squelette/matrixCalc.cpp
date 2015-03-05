@@ -10,29 +10,14 @@ float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	return s;
 }
 
-glm::vec3 getScale2(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
-	glm::vec3 ref = ref2 - ref1;
-	glm::vec3 mov = mov2 - mov1;
-
-	float s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
-
-	glm::vec3 scal = glm::vec3(s, s, s);
-
-	return scal;
-}
-
 /* obtient l'angle de rotation */
 float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
 	float normRef = sqrt(glm::dot(ref, ref));
-	// printf("norme Ref : %f\n", normRef);
 
 	float normMov = sqrt(glm::dot(mov, mov));
-	// printf("norme Mov : %f\n", normMov);
-
-	// printf("produit scalaire : %f\n", glm::dot(ref, mov));
 
 	float theta = acos(glm::dot(ref, mov) / (normRef * normMov)); // toujours calculable
 
@@ -66,16 +51,13 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	glm::vec3 transl;
 	glm::mat4 res = glm::mat4(1.0f);
 	glm::vec3 normal;
-	glm::vec3 scal;
 
 	angl = getRot(ref1, ref2, mov1, mov2);
 	transl = getTrans(ref1, mov1);
 	normal = getNormal(ref1, ref2, mov1, mov2);
-	scal = getScale2(ref1, ref2, mov1, mov2);
 
-	//res = glm::scale(res, scal);
 	res = glm::translate(res, transl);
-	res = glm::rotate(res, angl, normal);
+	res = glm::rotate(res, -angl, normal);
 	return res;
 }
 
@@ -126,13 +108,6 @@ void readData(FILE* fichier, glm::vec3 ** Bones){
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
-/*		if (i == (nb_bones -1)){
-			for (j = 0; j < nb_bones; j++){
-				fscanf(fichier, "%f %f %f", &Bones[j][2].x, &Bones[j][2].y, &Bones[j][2].z);
-				fscanf(fichier, "%f %f %f", &Bones[j][3].x, &Bones[j][3].y, &Bones[j][3].z);
-			}
-		}
-*/
 	}
 	for (i = 0; i < nb_bones; i++){
 /*		Bones[i][0].x /= 2.0;
