@@ -58,6 +58,7 @@ const GLchar* vertexSource =
 "layout(location = 2) in vec2 vtexcoord;"
 "layout(location = 3) in ivec4 bone_ids;"
 "layout(location = 4) in vec4 weights;"
+
 "out vec3 normal;"
 "out vec2 st;"
 
@@ -65,13 +66,14 @@ const GLchar* vertexSource =
 "uniform mat4 view;"
 "uniform mat4 proj;"
 "uniform mat4 bone_matrices[32];"
+"uniform float scale;"
 
 "void main(){"
+"float a = scale;"
 "mat3 window_scale = mat3("
-"vec3(0.90, 0.0, 0.0),"
-"vec3(0.0, 0.90, 0.0),"
-//"vec4(0.0, 0.0, 0.50, 0.0),"
-"vec3(0.0, 0.0, 9.0)"
+"vec3(a, 0.0, 0.0),"
+"vec3(0.0, a, 0.0),"
+"vec3(0.0, 0.0, a)"
 ");"
 "	mat4 boneTrans;"
 "	boneTrans = bone_matrices[bone_ids[0]] * weights[0];"
@@ -80,7 +82,7 @@ const GLchar* vertexSource =
 "	boneTrans += bone_matrices[bone_ids[3]] * weights[3];"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
+"	gl_Position = proj * view * model * boneTrans * vec4(window_scale * vpos, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -109,13 +111,13 @@ int main(){
 	}
 
 	/* test sur un jeu de données kinect enregistre en txt pour traitement */
-	FILE* fichier = fopen("bones-ordonnesTestSam.txt", "r");
+	FILE* fichier = fopen("bones-ordonnesTestJeu.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-mard.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-jeudi.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 	}
@@ -325,6 +327,11 @@ int main(){
 	GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
+	/* gere le scaling du modele */
+	float scaleValue = 1.0f;
+	GLint uniScale = glGetUniformLocation(shaderProgram, "scale");
+	glUniform1f(uniScale, scaleValue);
+
 	/* variables permettant une gestion des os au clavier */
 	float theta0 = 0.0f;
 	float theta1 = 0.0f;
@@ -335,6 +342,8 @@ int main(){
 	float theta6 = 0.0f;
 	float theta7 = 0.0f;
 
+	glm::mat4 model2 = glm::mat4(1.0f);
+
 	/* lien avec les uniform mat des 2 shaders des os */
 	glUseProgram(shaderProgramB);
 	GLint bones_view_mat_location = glGetUniformLocation(shaderProgramB, "view");
@@ -342,7 +351,7 @@ int main(){
 	GLint bones_proj_mat_location = glGetUniformLocation(shaderProgramB, "proj");
 	glUniformMatrix4fv(bones_proj_mat_location, 1, GL_FALSE, glm::value_ptr(proj));
 	GLint bones_model_mat_location = glGetUniformLocation(shaderProgramB, "model");
-	glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(bones_model_mat_location, 1, GL_FALSE, glm::value_ptr(model2));
 
 	glUseProgram(shaderProgramB2);
 	GLint bones_view_mat_location2 = glGetUniformLocation(shaderProgramB2, "view");
@@ -350,7 +359,7 @@ int main(){
 	GLint bones_proj_mat_location2 = glGetUniformLocation(shaderProgramB2, "proj");
 	glUniformMatrix4fv(bones_proj_mat_location2, 1, GL_FALSE, glm::value_ptr(proj));
 	GLint bones_model_mat_location2 = glGetUniformLocation(shaderProgramB2, "model");
-	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model2));
 
 	/* stocke les pixels des captures d'écran */
 	unsigned char* pixels = (unsigned char*)malloc(width*height * 3);
@@ -605,12 +614,17 @@ int main(){
 			counter++;
 			if (counter == 1){
 				printf("Updating matrices.\n");
+				/* update le scaling */
+				glUseProgram(shaderProgram);
+				printf("scaleValue : %f\n", scaleValue);
+				scaleValue = getScale(Bones[0][0], Bones[0][1], Bones[0][2], Bones[0][3]);
+				printf("scaleValue : %f\n", scaleValue);
+				glUniform1f(uniScale, scaleValue);
 				updateData(Bones, bone_matrices);
 
 				int l;
 				for (l = 0; l < nb_bones; l++){
 					bone_matrices[l] = bone_matrices[l];
-					glUseProgram(shaderProgram);
 					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 				}
 			}

@@ -2,30 +2,23 @@
 extern int nb_bones;
 
 
-glm::vec3 getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
 	float s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
 
-	glm::vec3 scalingVec = glm::vec3(s, s, s);
-	/*scalingMat[0][0] = sX;
-	scalingMat[1][1] = sY;
-	scalingMat[2][2] = sZ;
-	*/
-	return scalingVec;
+	return s;
 }
 
-glm::mat4 getScale2(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+glm::vec3 getScale2(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
 
-	float sX = mov.x / ref.x;
-	float sY = mov.y / ref.y;
-	float sZ = mov.z / ref.z;
+	float s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
 
-	glm::mat4 mat = glm::mat4(sX, 0, 0, 0, 0, sY, 0, 0, 0, 0, sZ, 0, 0, 0, 0, 1);
+	glm::vec3 scal = glm::vec3(s, s, s);
 
-	return mat;
+	return scal;
 }
 
 /* obtient l'angle de rotation */
@@ -50,9 +43,9 @@ float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 
 	glm::vec3 translation;
-	translation.x  = (mov - ref).x * 1.0/0.8;
-	translation.y = (mov - ref).y * 1.0 / 0.8;
-	translation.z = (mov - ref).z * 1.0 / 0.8;
+	translation.x  = (mov - ref).x;
+	translation.y = (mov - ref).y;
+	translation.z = (mov - ref).z;
 	return translation;
 }
 
@@ -73,26 +66,37 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	glm::vec3 transl;
 	glm::mat4 res = glm::mat4(1.0f);
 	glm::vec3 normal;
-	glm::vec3 scale;
+	glm::vec3 scal;
 
 	angl = getRot(ref1, ref2, mov1, mov2);
 	transl = getTrans(ref1, mov1);
 	normal = getNormal(ref1, ref2, mov1, mov2);
-	scale = getScale(ref1, ref2, mov1, mov2);
+	scal = getScale2(ref1, ref2, mov1, mov2);
 
-	//res = glm::scale(res, scale);
+	//res = glm::scale(res, scal);
 	res = glm::translate(res, transl);
-	res = glm::rotate(res, -angl, normal);
+	res = glm::rotate(res, angl, normal);
 	return res;
 }
 
 void scaleData(glm::vec3 ** Bones){
-
+	int i, j;
+	float s = 0.0f;
+	for (i = 0; i < nb_bones; i++){
+		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
+		Bones[i][0].x = s*Bones[i][0].x;
+		Bones[i][0].y = s*Bones[i][0].y;
+		Bones[i][0].z = s*Bones[i][0].z;
+		Bones[i][1].x = s*Bones[i][1].x;
+		Bones[i][1].y = s*Bones[i][1].y;
+		Bones[i][1].z = s*Bones[i][1].z;
+	}
 }
 
 /* Calcule la matrice de transformation de chaque bone et la range dans le tableau correspodant */
 void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	int i;
+	scaleData(Bones);
 	for (i = 0; i < nb_bones; i++){
 		bone_matrices[i] = updateMatrix(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
 		Bones[i][0] = Bones[i][2];
