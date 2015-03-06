@@ -82,7 +82,7 @@ const GLchar* vertexSource =
 "	boneTrans += bone_matrices[bone_ids[3]] * weights[3];"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * boneTrans * vec4(window_scale * vpos, 1.0);"
+"	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -111,10 +111,12 @@ int main(){
 	}
 
 	/* test sur un jeu de données kinect enregistre en txt pour traitement */
+	/*
 	FILE* fichier = fopen("bones-ordonnesTestJeu.txt", "r");
 	if (fichier == NULL){
 		printf("ERROR loading the file\n");
 	}
+	*/
 
 	/* positions initiales des os du modele dans un txt pour traitement */
 	FILE* fichier2 = fopen("init_exploit-jeudi.txt", "r");
@@ -123,6 +125,7 @@ int main(){
 	}
 	
 	/* charge les données précédentes */
+	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r");
 	initData(Bones, fichier2);
 	readData(fichier, Bones);
 	
@@ -141,9 +144,9 @@ int main(){
 		glm::vec3 c1 = Bones[h][1];
 		glm::vec3 c2 = Bones[h][2];
 		glm::vec3 c3 = Bones[h][3];
-		printf("vec1 : (%f, %f, %f)\nvec2 : (%f, %f, %f)\n", c1.x, c1.y, c1.z, c2.x, c2.y, c2.z);
+		//printf("vec1 : (%f, %f, %f)\nvec2 : (%f, %f, %f)\n", c1.x, c1.y, c1.z, c2.x, c2.y, c2.z);
 		float th = getRot(c0, c1, c2, c3);
-		printf("\trotation %d : %f\n\n", h, th*180/3.1415);
+		//printf("\trotation %d : %f\n\n", h, th*180/3.1415);
 	}
 
 	printf("***** TESTS MATRIXCALC *****\n");
@@ -187,7 +190,7 @@ int main(){
 		-0.944, 0.075, 0.033, // coude droit (12)
 		-1.467, 0.097, -0.281,}; // main droite (13)
 
-	float bone_positions2[] = {
+	float bone_positions3[] = {
 		0.031702, -0.305855, 0.561678,
 		-0.053113, -0.306185, 0.490401,
 		-0.136382, -0.286400, 0.348958,
@@ -234,7 +237,7 @@ int main(){
 	glBufferData(
 		GL_ARRAY_BUFFER,
 		3 * (bone_ctr + 2) * sizeof(float),
-		bone_positions2,
+		bone_positions3,
 		GL_STATIC_DRAW
 		);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
@@ -314,10 +317,14 @@ int main(){
 	char ordre = '1';
 	char ordrePrecedent = '0';
 	float time = 0.0f;
+	float newTime = 0.0f;
+	float elapsedTime = 0.0f;
 
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
+		static float time = glfwGetTime();
+
 		/*
 		do{
 			time = glfwGetTime();
@@ -328,18 +335,18 @@ int main(){
 			ordrePrecedent = ordre;
 			fscanf(commande, "%c", &ordre);
 			fclose(commande);
-			if (time > 5){
-				ordre = '1';
-			}
+			//if (time > 5){
+			//	ordre = '1';
+			//}
 
 			if (ordrePrecedent == '1' && ordre == '0'){
 				glfwHideWindow(window);
 			}
 
 		} while (ordre == '0');
+		*/
 
 		glfwShowWindow(window);
-		*/
 
 		/* permet de controler la vitesse de rotation */
 		static double prevSec = glfwGetTime();
@@ -390,6 +397,8 @@ int main(){
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0,point_ctr);
 
+		//bone_positions3 = updateTab(Bones, bone_positions3);
+
 		/* puis les positions des os */
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_PROGRAM_POINT_SIZE);
@@ -408,27 +417,37 @@ int main(){
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-		/* variable statique permettant de ne faire qu'une seule mise a jour */
-		static int counter = 0;
-		if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
-			counter++;
-			if (counter == 1){
-				printf("Updating matrices.\n");
-				/* update le scaling */
-				glUseProgram(shaderProgram);
-				printf("scaleValue : %f\n", scaleValue);
-				scaleValue = getScale(Bones[0][0], Bones[0][1], Bones[0][2], Bones[0][3]);
-				printf("scaleValue : %f\n", scaleValue);
-				glUniform1f(uniScale, scaleValue);
-				updateData(Bones, bone_matrices);
+		newTime = glfwGetTime();
+		elapsedTime = newTime - time;
 
-				int l;
-				for (l = 0; l < nb_bones; l++){
-					bone_matrices[l] = bone_matrices[l];
-					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
+		//if (elapsedTime > 0.100){
+			/* variable statique permettant de ne faire qu'une seule mise a jour */
+			static int counter = 0;
+			if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
+				counter++;
+				if (counter == 1){
+
+					//printf("Updating matrices.\n");
+					/* update le scaling */
+					glUseProgram(shaderProgram);
+					//printf("scaleValue : %f\n", scaleValue);
+					//scaleValue = getScale(Bones[0][0], Bones[0][1], Bones[0][2], Bones[0][3]);
+					//printf("scaleValue : %f\n", scaleValue);
+					glUniform1f(uniScale, scaleValue);
+
+					/* update les matrices */
+					updateData(Bones, bone_matrices);
+
+					/* readKinectData */
+					readData(fichier, Bones);
+					int l;
+					for (l = 0; l < nb_bones; l++){
+						bone_matrices[l] = bone_matrices[l];
+						glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
+					}
 				}
 			}
-		}
+		//}
 
 	}
 
@@ -464,4 +483,29 @@ GLuint createShader(GLenum type, const GLchar* src){
 	glCompileShader(shader);
 
 	return shader;
+}
+
+float * updateTab(glm::vec3 ** Tab, float * maj){
+	int i, k;
+	k = 0;
+	for (i = 0; i < 8; i++){
+			maj[k] = Tab[i][1].x;
+			k++;
+			maj[k] = Tab[i][1].y;
+			k++;
+			maj[k] = Tab[i][1].z;
+			k++;
+	}
+	/*Bones[0][0].y, Bones[0][0].z,
+		Bones[0][0].x, Bones[0][0].y, Bones[0][0].z,
+		Bones[1][1].x, Bones[1][1].y, Bones[1][1].z,
+		Bones[2][1].x, Bones[2][1].y, Bones[2][1].z,
+		Bones[3][1].x, Bones[3][1].y, Bones[3][1].z,
+		Bones[4][1].x, Bones[4][1].y, Bones[4][1].z,
+		Bones[5][1].x, Bones[5][1].y, Bones[5][1].z,
+		Bones[6][1].x, Bones[6][1].y, Bones[6][1].z,
+		Bones[7][1].x, Bones[7][1].y, Bones[7][1].z,
+	};*/
+
+	return maj;
 }
