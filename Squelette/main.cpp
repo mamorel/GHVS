@@ -29,7 +29,7 @@ const GLchar* vertexSourceB2 =
 "layout(location = 0) in vec3 vp;"
 "uniform mat4 proj, view, model;"
 "void main() {"
-"	gl_PointSize = 3.0;"
+"	gl_PointSize = 7.0;"
 "	gl_Position = proj * view * model * vec4(vp, 1.0);"
 "}";
 
@@ -46,7 +46,7 @@ const GLchar* vertexSourceB =
 "layout(location = 0) in vec3 vp;"
 "uniform mat4 proj, view, model;"
 "void main() {"
-"	gl_PointSize = 10.0;"
+"	gl_PointSize = 4.0;"
 "	gl_Position = proj * view * model * vec4(vp, 1.0);"
 "}";
 
@@ -125,7 +125,6 @@ int main(){
 		printf("Error loading the init file\n");
 		exit(1);
 	}
-	
 	/* charge les données précédentes */
 	initData(Bones, fichier2);
 	fclose(fichier2);
@@ -281,7 +280,7 @@ int main(){
 	glm::mat4 model = glm::mat4(1.0f);
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 3.5f, 3.5f),
+		glm::vec3(0.0f, 2.5f, 2.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -321,14 +320,14 @@ int main(){
 	FILE* commande;
 	char ordre = '1';
 	char ordrePrecedent = '0';
-	float time = 0.0f;
-	float newTime = 0.0f;
-	float elapsedTime = 0.0f;
+	double newTime = 0.0f;
+	double elapsedTime = 0.0f;
 
 	while (!glfwWindowShouldClose(window)){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
-		static float time = glfwGetTime();
+
+		static double time = glfwGetTime();
 
 		/*
 		do{
@@ -353,12 +352,6 @@ int main(){
 		*/
 
 		//glfwShowWindow(window);
-
-		/* permet de controler la vitesse de rotation */
-		static double prevSec = glfwGetTime();
-		double curSec = glfwGetTime();
-		double gap = curSec - prevSec;
-		prevSec = curSec;
 
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
@@ -435,13 +428,6 @@ int main(){
 		elapsedTime = newTime - time;
 
 		//if (elapsedTime > 0.100){
-			/* variable statique permettant de ne faire qu'une seule mise a jour */
-			static int counter = 0;
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
-				counter++;
-				if (counter == 1){
-					printf("on met a jour\n");
-
 					/* readKinectData */
 					readData(Bones);
 					updateTab(Bones, bone_positions3);
@@ -467,17 +453,19 @@ int main(){
 					int l;
 					for (l = 0; l < nb_bones; l++){
 						glUseProgram(shaderProgram);
-						bone_matrices[l] = bone_matrices[l];
+						//bone_matrices[l] = bone_matrices[l];
 						glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 					}
-				}
-			}
+
 		//}
 
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
-				counter = 0;
-				printf("counter : %d\n", counter);
-			}
+					newTime = glfwGetTime();
+					elapsedTime = newTime - time;
+					while (elapsedTime < 0.3){
+						newTime = glfwGetTime();
+						elapsedTime = newTime - time;
+					}
+					time = newTime;
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
@@ -525,24 +513,14 @@ void updateTab(glm::vec3 ** Tab, float * maj){
 	int i, k;
 	k = 0;
 	for (i = 0; i < nb_bones; i++){
-			maj[k] = Tab[i][1].x;
+			maj[k] = Tab[i][3].x;
 			k++;
-			maj[k] = Tab[i][1].y;
+			maj[k] = Tab[i][3].y;
 			k++;
-			maj[k] = Tab[i][1].z;
+			maj[k] = Tab[i][3].z;
 			k++;
 	}
 	maj[k] = Tab[0][0].x;
-	maj[k + 1] = Tab[0][0].y;
-	maj[k + 2] = Tab[0][0].z;
-	/*Bones[0][0].y, Bones[0][0].z,
-		Bones[0][0].x, Bones[0][0].y, Bones[0][0].z,
-		Bones[1][1].x, Bones[1][1].y, Bones[1][1].z,
-		Bones[2][1].x, Bones[2][1].y, Bones[2][1].z,
-		Bones[3][1].x, Bones[3][1].y, Bones[3][1].z,
-		Bones[4][1].x, Bones[4][1].y, Bones[4][1].z,
-		Bones[5][1].x, Bones[5][1].y, Bones[5][1].z,
-		Bones[6][1].x, Bones[6][1].y, Bones[6][1].z,
-		Bones[7][1].x, Bones[7][1].y, Bones[7][1].z,
-	};*/
+	maj[k + 1] = Tab[0][2].y;
+	maj[k + 2] = Tab[0][2].z;
 }
