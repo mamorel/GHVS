@@ -98,6 +98,7 @@ const GLchar* fragmentSource =
 GLFWwindow* initGLFW(int width, int weight, char* title);
 void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
+void updateTab(glm::vec3 ** Tab, float * maj);
 
 int main(){
 
@@ -122,12 +123,12 @@ int main(){
 	FILE* fichier2 = fopen("init_exploit-jeudi.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
+		exit(1);
 	}
 	
 	/* charge les données précédentes */
-	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r");
 	initData(Bones, fichier2);
-	readData(fichier, Bones);
+	fclose(fichier2);
 	
 	/* Teste fonction getRot */
 	int h;
@@ -190,7 +191,8 @@ int main(){
 		-0.944, 0.075, 0.033, // coude droit (12)
 		-1.467, 0.097, -0.281,}; // main droite (13)
 
-	float bone_positions3[] = {
+	float * bone_positions3 = (float *)malloc(27 * sizeof(float));
+	float bone_positions4[] = {
 		0.031702, -0.305855, 0.561678,
 		-0.053113, -0.306185, 0.490401,
 		-0.136382, -0.286400, 0.348958,
@@ -202,6 +204,9 @@ int main(){
 		0.192558, -0.337995, 0.328809,
 	};
 
+	for (h = 0; h < 27; h++){
+		bone_positions3[h] = bone_positions4[h];
+	}
 
 	/* Le vao, vbo, programme pour les os du modele */
 	GLuint bones_vao;
@@ -276,7 +281,7 @@ int main(){
 	glm::mat4 model = glm::mat4(1.0f);
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 2.5f, 1.5f),
+		glm::vec3(0.0f, 3.5f, 3.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -331,6 +336,7 @@ int main(){
 			commande = fopen("commandeOuverture.txt", "r");
 			if (commande == NULL){
 				printf("error reading commande java\n");
+				exit(1);
 			}
 			ordrePrecedent = ordre;
 			fscanf(commande, "%c", &ordre);
@@ -346,7 +352,7 @@ int main(){
 		} while (ordre == '0');
 		*/
 
-		glfwShowWindow(window);
+		//glfwShowWindow(window);
 
 		/* permet de controler la vitesse de rotation */
 		static double prevSec = glfwGetTime();
@@ -397,7 +403,18 @@ int main(){
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0,point_ctr);
 
-		//bone_positions3 = updateTab(Bones, bone_positions3);
+		/*
+		glUseProgram(shaderProgramB2);
+		updateData(Bones, bone_matrices);
+		readData(fichier, Bones);
+		updateTab(Bones, bone_positions3);
+		glBufferData(
+			GL_ARRAY_BUFFER,
+			3 * (bone_ctr + 2) * sizeof(float),
+			bone_positions3,
+			GL_STATIC_DRAW
+			);
+			*/
 
 		/* puis les positions des os */
 		glDisable(GL_DEPTH_TEST);
@@ -406,16 +423,13 @@ int main(){
 		glBindVertexArray(bones_vao);
 		glDrawArrays(GL_POINTS, 0, bone_ctr+2);
 		glDisable(GL_PROGRAM_POINT_SIZE);
-
+		
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 		glUseProgram(shaderProgramB2);
 		glBindVertexArray(bones_vao2);
 		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
 		glDisable(GL_PROGRAM_POINT_SIZE);
-		
-		glfwSwapBuffers(window);
-		glfwPollEvents();
 
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
@@ -423,9 +437,22 @@ int main(){
 		//if (elapsedTime > 0.100){
 			/* variable statique permettant de ne faire qu'une seule mise a jour */
 			static int counter = 0;
-			if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
 				counter++;
 				if (counter == 1){
+					printf("on met a jour\n");
+
+					/* readKinectData */
+					readData(Bones);
+					updateTab(Bones, bone_positions3);
+
+					glUseProgram(shaderProgramB2);
+					glBufferData(
+						GL_ARRAY_BUFFER,
+						3 * (bone_ctr + 2) * sizeof(float),
+						bone_positions3,
+						GL_STATIC_DRAW
+						);
 
 					//printf("Updating matrices.\n");
 					/* update le scaling */
@@ -437,11 +464,9 @@ int main(){
 
 					/* update les matrices */
 					updateData(Bones, bone_matrices);
-
-					/* readKinectData */
-					readData(fichier, Bones);
 					int l;
 					for (l = 0; l < nb_bones; l++){
+						glUseProgram(shaderProgram);
 						bone_matrices[l] = bone_matrices[l];
 						glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 					}
@@ -449,6 +474,13 @@ int main(){
 			}
 		//}
 
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
+				counter = 0;
+				printf("counter : %d\n", counter);
+			}
+
+			glfwSwapBuffers(window);
+			glfwPollEvents();
 	}
 
 	glDeleteProgram(shaderProgram);
@@ -457,6 +489,10 @@ int main(){
 	glDeleteVertexArrays(1, &vao);
 
 	glfwTerminate();
+
+	for (h = 0; h+2 < 27; h=h+3){
+		printf("%f, %f, %f\n", bone_positions3[h], bone_positions3[h+1], bone_positions3[h+2]);
+	}
 
 	return 0;
 }
@@ -485,10 +521,10 @@ GLuint createShader(GLenum type, const GLchar* src){
 	return shader;
 }
 
-float * updateTab(glm::vec3 ** Tab, float * maj){
+void updateTab(glm::vec3 ** Tab, float * maj){
 	int i, k;
 	k = 0;
-	for (i = 0; i < 8; i++){
+	for (i = 0; i < nb_bones; i++){
 			maj[k] = Tab[i][1].x;
 			k++;
 			maj[k] = Tab[i][1].y;
@@ -496,6 +532,9 @@ float * updateTab(glm::vec3 ** Tab, float * maj){
 			maj[k] = Tab[i][1].z;
 			k++;
 	}
+	maj[k] = Tab[0][0].x;
+	maj[k + 1] = Tab[0][0].y;
+	maj[k + 2] = Tab[0][0].z;
 	/*Bones[0][0].y, Bones[0][0].z,
 		Bones[0][0].x, Bones[0][0].y, Bones[0][0].z,
 		Bones[1][1].x, Bones[1][1].y, Bones[1][1].z,
@@ -506,6 +545,4 @@ float * updateTab(glm::vec3 ** Tab, float * maj){
 		Bones[6][1].x, Bones[6][1].y, Bones[6][1].z,
 		Bones[7][1].x, Bones[7][1].y, Bones[7][1].z,
 	};*/
-
-	return maj;
 }
