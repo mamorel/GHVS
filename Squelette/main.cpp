@@ -82,7 +82,7 @@ const GLchar* vertexSource =
 "	boneTrans += bone_matrices[bone_ids[3]] * weights[3];"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * boneTrans * vec4(vpos, 1.0);"
+"	gl_Position = proj * view * model * boneTrans * vec4(vpos.x, vpos.y, vpos.z, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -466,7 +466,7 @@ int main(){
 
 					newTime = glfwGetTime();
 					elapsedTime = newTime - time;
-					while (elapsedTime < 0.150){
+					while (elapsedTime < 0.028){
 						newTime = glfwGetTime();
 						elapsedTime = newTime - time;
 					}
