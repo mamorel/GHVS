@@ -120,7 +120,7 @@ int main(){
 	*/
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-jeudi.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-new.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
