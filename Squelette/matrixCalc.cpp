@@ -1,6 +1,7 @@
 #include "matrixCalc.h"
 extern int nb_bones;
 
+// des +x, +z, +y dans Kinect
 
 float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	glm::vec3 ref = ref2 - ref1;
@@ -26,11 +27,11 @@ float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 
 	if (thetaC > 0){
 		//printf("+");
-		return acos(thetaC);
+		return -acos(thetaC);
 	}
 	else{
 		//printf("-");
-		return -acos(thetaC);
+		return +acos(thetaC);
 	}
 }
 
@@ -52,12 +53,14 @@ glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mo
 	glm::vec3 normal = glm::cross(ref, mov);
 	float norm = sqrt(glm::dot(normal, normal));
 	normal = normal / norm;
+	normal.x = -normal.x;
+	normal.y = -normal.y;
 	return normal;
 }
 
 /* Calcule la matrice de transf. d'un bone */
 glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
-	float angl =0.0f;
+	float angl = 0.0;
 	glm::vec3 transl;
 	glm::mat4 res = glm::mat4(1.0f);
 	glm::vec3 normal;
@@ -76,12 +79,12 @@ void scaleData(glm::vec3 ** Bones){
 	float s = 0.0f;
 	for (i = 0; i < nb_bones; i++){
 		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
-		Bones[i][2].x = s*Bones[i][2].x;
-		Bones[i][2].y = s*Bones[i][2].y;
-		Bones[i][2].z = s*Bones[i][2].z;
-		Bones[i][3].x = s*Bones[i][3].x;
-		Bones[i][3].y = s*Bones[i][3].y;
-		Bones[i][3].z = s*Bones[i][3].z;
+		Bones[i][0].x = s*Bones[i][0].x;
+		Bones[i][0].y = s*Bones[i][0].y;
+		Bones[i][0].z = s*Bones[i][0].z;
+		Bones[i][1].x = s*Bones[i][1].x;
+		Bones[i][1].y = s*Bones[i][1].y;
+		Bones[i][1].z = s*Bones[i][1].z;
 	}
 }
 
@@ -107,7 +110,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(glm::vec3 ** Bones){
-	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r");
+	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
 		exit(1);

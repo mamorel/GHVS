@@ -280,7 +280,7 @@ int main(){
 	glm::mat4 model = glm::mat4(1.0f);
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 2.5f, 2.5f),
+		glm::vec3(0.0f, 2.5f, 0.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -427,41 +427,46 @@ int main(){
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
 
-		//if (elapsedTime > 0.100){
-					/* readKinectData */
-					readData(Bones);
-					updateTab(Bones, bone_positions3);
+		/*static int counter = 0;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+			counter++;
+			if (counter == 1){*/
+				/* readKinectData */
+				readData(Bones);
+				updateTab(Bones, bone_positions3);
 
-					glUseProgram(shaderProgramB2);
-					glBufferData(
-						GL_ARRAY_BUFFER,
-						3 * (bone_ctr + 2) * sizeof(float),
-						bone_positions3,
-						GL_STATIC_DRAW
-						);
+				glUseProgram(shaderProgramB2);
+				glBufferData(
+					GL_ARRAY_BUFFER,
+					3 * (bone_ctr + 2) * sizeof(float),
+					bone_positions3,
+					GL_STATIC_DRAW
+					);
 
-					//printf("Updating matrices.\n");
-					/* update le scaling */
+				//printf("Updating matrices.\n");
+				/* update le scaling */
+				glUseProgram(shaderProgram);
+				//printf("scaleValue : %f\n", scaleValue);
+				//scaleValue = getScale(Bones[0][0], Bones[0][1], Bones[0][2], Bones[0][3]);
+				//printf("scaleValue : %f\n", scaleValue);
+				glUniform1f(uniScale, scaleValue);
+
+				/* update les matrices */
+				updateData(Bones, bone_matrices);
+				int l;
+				for (l = 0; l < nb_bones; l++){
 					glUseProgram(shaderProgram);
-					//printf("scaleValue : %f\n", scaleValue);
-					//scaleValue = getScale(Bones[0][0], Bones[0][1], Bones[0][2], Bones[0][3]);
-					//printf("scaleValue : %f\n", scaleValue);
-					glUniform1f(uniScale, scaleValue);
+					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
+				}
+			/*}
+		}*/
 
-					/* update les matrices */
-					updateData(Bones, bone_matrices);
-					int l;
-					for (l = 0; l < nb_bones; l++){
-						glUseProgram(shaderProgram);
-						//bone_matrices[l] = bone_matrices[l];
-						glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
-					}
-
-		//}
+		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		//	counter--;
 
 					newTime = glfwGetTime();
 					elapsedTime = newTime - time;
-					while (elapsedTime < 0.3){
+					while (elapsedTime < 0.150){
 						newTime = glfwGetTime();
 						elapsedTime = newTime - time;
 					}
