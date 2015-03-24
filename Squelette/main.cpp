@@ -8,11 +8,9 @@
 #include "matrixCalc.h"
 #include "printScreen.h"
 
-/* Continuer modification peinture, régler problème de scaling ! */
-
 #define MAX_BONES 32
 int nb_bones = 8;
-#define MODEL_FILE "Sweat8PaintedNormalizedTest5Retry9.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
+#define MODEL_FILE "Sweat8AutoW2.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
 
 /* Shaders */
 
@@ -159,8 +157,8 @@ int main(){
 	float rot2 = 0.0f;
 	int screen_width = 1920;
 	int screen_height = 1080;
-	int width = 1024;
-	int height = 768;
+	int width = 1440;
+	int height = 900;
 	GLFWwindow* window = initGLFW(width, height, "PACT");
 	glfwMakeContextCurrent(window);
 	initGLEW();
@@ -319,7 +317,7 @@ int main(){
 
 	FILE* commande;
 	char ordre = '1';
-	char ordrePrecedent = '0';
+	char ordrePrecedent = '1';
 	double newTime = 0.0f;
 	double elapsedTime = 0.0f;
 
@@ -328,8 +326,8 @@ int main(){
 			glfwSetWindowShouldClose(window, GL_TRUE);
 
 		static double time = glfwGetTime();
-
-		/*
+		int ctr = 0;
+		
 		do{
 			time = glfwGetTime();
 			commande = fopen("commandeOuverture.txt", "r");
@@ -340,29 +338,24 @@ int main(){
 			ordrePrecedent = ordre;
 			fscanf(commande, "%c", &ordre);
 			fclose(commande);
-			//if (time > 5){
-			//	ordre = '1';
-			//}
-
 			if (ordrePrecedent == '1' && ordre == '0'){
 				glfwHideWindow(window);
 			}
 
 		} while (ordre == '0');
-		*/
+			glfwShowWindow(window);
 
-		//glfwShowWindow(window);
 
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
-		//glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height));
+		glfwSetWindowPos(window, (screen_width - width) / 2.0, (screen_height - height)/2.0);
 		
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 		glViewport(0, 0, width, height);
 		
-		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/* Rotation du modèle */
@@ -496,7 +489,7 @@ GLFWwindow* initGLFW(int width, int height, char* title){
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	// glfwWindowHint(GLFW_DECORATED, GL_FALSE); // enleve decoration fenetre
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE); // enleve decoration fenetre
 
 	return glfwCreateWindow(width, height, title, NULL, NULL);
 }
