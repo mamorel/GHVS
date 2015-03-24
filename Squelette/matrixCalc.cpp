@@ -103,7 +103,7 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 }
 
 void scaleData(glm::vec3 ** Bones){
-	int i, j;
+	int i;
 	float s = 0.0f;
 	for (i = 0; i < nb_bones; i++){
 		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
@@ -127,7 +127,7 @@ void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 
 /* range dans le tableau des os les positions des os par défaut du modèle (pose au repos) */
 void initData(glm::vec3 ** Bones, FILE* fichier){
-	int i, j;
+	int i;
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][0].x, &Bones[i][0].y, &Bones[i][0].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][1].x, &Bones[i][1].y, &Bones[i][1].z);
@@ -138,12 +138,27 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(glm::vec3 ** Bones){
-	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
+	FILE* fichier = fopen("\\Users\\Utilisateur\\Documents\\Kinect Studio\\Samples\\ColorBasics-D2D - fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
-		exit(1);
+		//exit(1);
 	}
-	int i,j;
+	int i;
+	for (i = 0; i < nb_bones; i++){
+		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
+		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
+		//printf("Bone %d : (%f, %f, %f) -> (%f, %f, %f)\n", i, Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
+	}
+	fclose(fichier);
+}
+
+void resetData(glm::vec3 ** Bones){
+		FILE* fichier = fopen("\\Users\\Utilisateur\\Documents\\Kinect Studio\\Samples\\ColorBasics-D2D - fonctionnel\\resetSkel.txt", "r"); //"bones-ordonnesTestJeu.txt"
+	if (fichier == NULL){
+		printf("error loading the file skelcoordinates.txt\n");
+		//exit(1);
+	}
+	int i;
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
