@@ -111,6 +111,8 @@ int main(){
 	int screen_height = 768;
 	int width = 640;
 	int height = 480;
+
+	/* Initilisation GLFW, GLEW */
 	GLFWwindow* window = initGLFW(width, height, "PACT");
 	glfwMakeContextCurrent(window);
 	initGLEW();
@@ -128,7 +130,6 @@ int main(){
 	printf("\nNombre de bones : %i\n", bone_ctr);
 
 	/* Les positions des os du modele de vetement et des données Kinect pour representation */
-
 	float * bone_positions3 = (float *)malloc(27 * sizeof(float));
 	float bone_positions4[] = {
 		0.031702, -0.305855, 0.561678,
@@ -141,7 +142,6 @@ int main(){
 		0.269807, -0.312715, 0.207836,
 		0.192558, -0.337995, 0.328809,
 	};
-
 	int h;
 	for (h = 0; h < 27; h++){
 		bone_positions3[h] = bone_positions4[h];
@@ -267,6 +267,7 @@ int main(){
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 		glViewport(0, 0, width, height);
 		
+		/* Initialisation */
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
