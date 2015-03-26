@@ -157,6 +157,19 @@ void readData(glm::vec3 ** Bones){
 	fclose(fichier);
 }
 
+/* Lecture des données Kinect de TEST */
+void readDataTest(glm::vec3 ** Bones, FILE* fichier){
+	int i;
+	printf("Position : %l\n", ftell(fichier));
+	for (i = 0; i < nb_bones; i++){
+		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
+		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
+		//Bones[i][2].y += 3.0f;
+		//Bones[i][3].y += 3.0f;
+		//printf("Bone %d : (%f, %f, %f) -> (%f, %f, %f)\n", i, Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
+	}
+}
+
 void resetData(glm::vec3 ** Bones){
 		FILE* fichier = fopen("\\Users\\Utilisateur\\Documents\\Kinect Studio\\Samples\\ColorBasics-D2D - fonctionnel\\resetSkel.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){

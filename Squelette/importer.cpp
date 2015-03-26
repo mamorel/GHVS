@@ -109,7 +109,7 @@ bool loadModel(const char* file_name,
 			}
 		}
 	}
-
+	// On complète le tableau de bone_ids et weights pour les vertex influencés par moins de 4 bones
 	int jk;
 	for (jk = 0; jk < *point_ctr; jk++){
 		if (vertexBoneCtr[jk] != 4){
@@ -123,7 +123,7 @@ bool loadModel(const char* file_name,
 		int sum = bone_ids[4*jk+0] + bone_ids[4*jk+1] + bone_ids[4*jk+2] + bone_ids[4*jk+3];
 		float sumW = weights[4*jk+0] + weights[4*jk+1] + weights[4*jk+2] + weights[4*jk+3];
 		if ((sumW < 0.999f) || (sum < 0)){
-			//printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
+			printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
 		}	
 	}
 

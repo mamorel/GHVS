@@ -13,6 +13,7 @@ glm::vec3 getNormal(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mo
 glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
 void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices); 
 void readData(glm::vec3 ** Bones);
+void readDataTest(glm::vec3 ** Bones, FILE* fichier);
 void initData(glm::vec3 ** Bones, FILE* fichier);
 float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2);
 void resetData(glm::vec3 ** Bones);
