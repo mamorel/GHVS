@@ -10,8 +10,8 @@
 #include "printScreen.h"
 
 #define MAX_BONES 32
-int nb_bones = 8;
-#define MODEL_FILE "Sweat8AutoW2.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
+int nb_bones = 10;
+#define MODEL_FILE "Sweat8AutoW2-10.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
 
 /* Shaders */
 
@@ -95,7 +95,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-new.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-new10.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
@@ -109,8 +109,8 @@ int main(){
 	float rot2 = 0.0f;
 	int screen_width = 1024;
 	int screen_height = 768;
-	int width = 640;
-	int height = 480;
+	int width = 1024;
+	int height = 768;
 
 	/* Initilisation GLFW, GLEW */
 	GLFWwindow* window = initGLFW(width, height, "PACT");
@@ -241,6 +241,7 @@ int main(){
 		
 		static double time = glfwGetTime();
 
+		/*
 		do{
 			commande = fopen("commandeOuverture.txt", "r");
 			if (commande == NULL){
@@ -257,6 +258,7 @@ int main(){
 
 		} while (ordre == '0');
 			glfwShowWindow(window);
+		*/
 
 		/* Taille de la fenetre */
 		glfwGetWindowSize(window, &width, &height);
@@ -356,10 +358,10 @@ int main(){
 
 	glfwTerminate();
 
-	for (h = 0; h+2 < 27; h=h+3){
+/*	for (h = 0; h+2 < 27; h=h+3){
 		printf("%f, %f, %f\n", bone_positions3[h], bone_positions3[h+1], bone_positions3[h+2]);
 	}
-
+*/
 	return 0;
 }
 

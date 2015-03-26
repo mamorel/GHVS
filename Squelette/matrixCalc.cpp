@@ -132,13 +132,16 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 		fscanf(fichier, "%f %f %f", &Bones[i][0].x, &Bones[i][0].y, &Bones[i][0].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][1].x, &Bones[i][1].y, &Bones[i][1].z);
 	}
-	//for (i = 0; i < nb_bones;i++)
-	//	printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
+	for (i = 0; i < nb_bones; i++){
+		//Bones[i][0].y += 3.0f;
+		//Bones[i][1].y += 3.0f;
+			printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
+	}
 }
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(glm::vec3 ** Bones){
-	FILE* fichier = fopen("\\Users\\Utilisateur\\Documents\\Kinect Studio\\Samples\\ColorBasics-D2D - fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
+	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates3.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
 		//exit(1);
@@ -147,6 +150,8 @@ void readData(glm::vec3 ** Bones){
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);
+		//Bones[i][2].y += 3.0f;
+		//Bones[i][3].y += 3.0f;
 		//printf("Bone %d : (%f, %f, %f) -> (%f, %f, %f)\n", i, Bones[i][2].x, Bones[i][2].y, Bones[i][2].z, Bones[i][3].x, Bones[i][3].y, Bones[i][3].z);
 	}
 	fclose(fichier);
