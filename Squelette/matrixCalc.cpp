@@ -71,6 +71,9 @@ glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 	translation.y = (mov - ref).y;
 	translation.z = (mov - ref).z;
 	//printf("trans.X : %f / trans.Y : %f / trans.Z : %f\n", translation.x, translation.y, translation.z);
+	if (translation.x > 10.0 || translation.y > 10.0 || translation.z > 10.0){
+		printf("translation > 10\n");
+	}
 	return translation;
 }
 
@@ -119,10 +122,11 @@ void scaleData(glm::vec3 ** Bones){
 /* Calcule la matrice de transformation de chaque bone et la range dans le tableau correspodant */
 void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
 	int i;
-	scaleData(Bones);
+	//scaleData(Bones);
 	for (i = 0; i < nb_bones; i++){
 		bone_matrices[i] = updateMatrix(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
 	}
+	scaleData(Bones);
 }
 
 /* range dans le tableau des os les positions des os par défaut du modèle (pose au repos) */
@@ -141,7 +145,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(glm::vec3 ** Bones){
-	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates3.txt", "r"); //"bones-ordonnesTestJeu.txt"
+	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
 		//exit(1);
@@ -160,7 +164,6 @@ void readData(glm::vec3 ** Bones){
 /* Lecture des données Kinect de TEST */
 void readDataTest(glm::vec3 ** Bones, FILE* fichier){
 	int i;
-	printf("Position : %l\n", ftell(fichier));
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][2].x, &Bones[i][2].y, &Bones[i][2].z);
 		fscanf(fichier, "%f %f %f", &Bones[i][3].x, &Bones[i][3].y, &Bones[i][3].z);

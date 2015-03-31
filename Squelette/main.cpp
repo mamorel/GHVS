@@ -9,7 +9,7 @@
 #include "matrixCalc.h"
 #include "printScreen.h"
 
-bool test = true;
+bool test = false;
 #define MAX_BONES 32
 int nb_bones = 10;
 #define MODEL_FILE "Sweat8AutoW3-10.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
@@ -87,9 +87,9 @@ int main(){
 	FILE* fichierT;
 
 	if (test){
-		fichierT = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinatesTEST.txt", "r"); //"bones-ordonnesTestJeu.txt"
+		fichierT = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates3.txt", "r"); //"bones-ordonnesTestJeu.txt"
 		if (fichierT == NULL){
-			printf("error loading the file skelcoordinatesTEST.txt\n");
+			printf("error loading the file skelcoordinates3.txt\n");
 			exit(1);
 		}
 	}
@@ -104,7 +104,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-new10.txt", "r");
+	FILE* fichier2 = fopen("init_exploit-10.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
@@ -374,7 +374,7 @@ int main(){
 		fclose(fichierT);
 	}
 
-	glfwTerminate();
+	//glfwTerminate();
 
 /*	for (h = 0; h+2 < 27; h=h+3){
 		printf("%f, %f, %f\n", bone_positions3[h], bone_positions3[h+1], bone_positions3[h+2]);
