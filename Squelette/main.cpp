@@ -247,6 +247,38 @@ int main(){
 		if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
 			//main2();
 		}
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+			printf("Bras gauche : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[6][0], Bones[6][1], Bones[6][2], Bones[6][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[6][0], Bones[6][1], Bones[6][2], Bones[6][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[6][0], Bones[6][2]));
+
+			printf("Avant-bras gauche : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[7][0], Bones[7][1], Bones[7][2], Bones[7][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[7][0], Bones[7][1], Bones[7][2], Bones[7][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[7][0],Bones[7][2]));
+
+			printf("Main gauche : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[8][0], Bones[8][1], Bones[8][2], Bones[8][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[8][0], Bones[8][1], Bones[8][2], Bones[8][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[8][0],Bones[8][2]));
+
+			printf("Bras droit : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[4][0], Bones[4][1], Bones[4][2], Bones[4][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[4][0], Bones[4][1], Bones[4][2], Bones[4][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[4][0],Bones[4][2]));
+
+			printf("Avant-bras droit : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[5][0], Bones[5][1], Bones[5][2], Bones[5][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[5][0], Bones[5][1], Bones[5][2], Bones[5][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[5][0],Bones[5][2]));
+
+			printf("Main droite : \n");
+			printf("\t- Scale : %f\n", getScale(Bones[9][0], Bones[9][1], Bones[9][2], Bones[9][3], Bones));
+			printf("\t- Rotation : %f\n", getRot(Bones[9][0], Bones[9][1], Bones[9][2], Bones[9][3]));
+			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[9][0], Bones[9][2]));
+		}
 		
 		static double time = glfwGetTime();
 

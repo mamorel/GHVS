@@ -31,10 +31,33 @@ myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].x) / 2.0 <<
 myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_WRIST_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_WRIST_RIGHT].z - 2.0) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_WRIST_RIGHT].y) / 1.6 << "\n";
 myfile.close();
 */
-float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
+
+bool IsFiniteNumber(double x)
+{
+	return (x <= DBL_MAX && x >= -DBL_MAX);
+}
+
+float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, glm::vec3 ** Bones){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
-	float s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
+	float s = 0.0f;
+	if (sqrt(glm::dot(ref, ref)) < 0.01f){
+
+		FILE* fichier2 = fopen("init_exploit-10.txt", "r");
+		if (fichier2 == NULL){
+			printf("Error loading the init file\n");
+			exit(1);
+		}
+
+		initData(Bones, fichier2);
+		fclose(fichier2);
+		s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
+		printf("norme de ref inf a 0.010");
+	
+	}
+	else{
+		s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
+	}
 
 	return s;
 }
@@ -54,11 +77,17 @@ float getRot(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2){
 	float thetaS = normCross / (normRef * normMov);
 
 	if (thetaC > 0){
-		//printf("+");
+		if (thetaC > 1.0f || thetaC < -1.0f){
+			printf("+ en dehors de -1,1\n");
+			return 0.0f;
+		}
 		return -acos(thetaC);
 	}
 	else{
-		//printf("-");
+		if (thetaC > 1.0f || thetaC < -1.0f){
+			printf("- en dehors de -1, 1\n");
+			return 0.0f;
+		}
 		return +acos(thetaC);
 	}
 }
@@ -70,9 +99,15 @@ glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 	translation.x  = (mov - ref).x;
 	translation.y = (mov - ref).y;
 	translation.z = (mov - ref).z;
-	//printf("trans.X : %f / trans.Y : %f / trans.Z : %f\n", translation.x, translation.y, translation.z);
-	if (translation.x > 10.0 || translation.y > 10.0 || translation.z > 10.0){
-		printf("translation > 10\n");
+
+	printf("%f\n", translation.y);
+	printf("ref : %f, %f, %f\n", ref.x, ref.y, ref.z);
+
+	if (!IsFiniteNumber(translation.x) || !IsFiniteNumber(translation.y) || !IsFiniteNumber(translation.z)){
+		printf("translation au dessus de 50\n");
+		translation.x = 0.2f;
+		translation.y = 0.2f;
+		translation.z = 0.2f;
 	}
 	return translation;
 }
@@ -109,7 +144,7 @@ void scaleData(glm::vec3 ** Bones){
 	int i;
 	float s = 0.0f;
 	for (i = 0; i < nb_bones; i++){
-		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
+		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3], Bones);
 		Bones[i][0].x = s*Bones[i][0].x;
 		Bones[i][0].y = s*Bones[i][0].y;
 		Bones[i][0].z = s*Bones[i][0].z;
@@ -139,7 +174,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 	for (i = 0; i < nb_bones; i++){
 		//Bones[i][0].y += 3.0f;
 		//Bones[i][1].y += 3.0f;
-			printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
+		//	printf("Bone %d, frame 1. \n\told1 = (%f, %f, %f)\n\told2 = (%f, %f, %f)\n\n", i, Bones[i][0].x, Bones[i][0].y, Bones[i][0].z, Bones[i][1].x, Bones[i][1].y, Bones[i][1].z);
 	}
 }
 
