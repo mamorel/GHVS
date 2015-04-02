@@ -11,8 +11,8 @@
 
 bool test = false;
 #define MAX_BONES 32
-int nb_bones = 10;
-#define MODEL_FILE "Sweat8AutoW3-10.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
+int nb_bones = 8;
+#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
 
 /* Shaders */
 
@@ -104,7 +104,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_exploit-10.txt", "r");
+	FILE* fichier2 = fopen("init_robe1.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
@@ -205,7 +205,7 @@ int main(){
 	glm::mat4 model = glm::mat4(1.0f);
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.0f, 2.5f, 0.5f),
+		glm::vec3(0.5f, 0.5f, 92.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -248,6 +248,7 @@ int main(){
 			//main2();
 		}
 
+		/*
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
 			printf("Bras gauche : \n");
 			printf("\t- Scale : %f\n", getScale(Bones[6][0], Bones[6][1], Bones[6][2], Bones[6][3], Bones));
@@ -279,6 +280,7 @@ int main(){
 			printf("\t- Rotation : %f\n", getRot(Bones[9][0], Bones[9][1], Bones[9][2], Bones[9][3]));
 			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[9][0], Bones[9][2]));
 		}
+		*/
 		
 		static double time = glfwGetTime();
 

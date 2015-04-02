@@ -43,7 +43,7 @@ float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, g
 	float s = 0.0f;
 	if (sqrt(glm::dot(ref, ref)) < 0.01f){
 
-		FILE* fichier2 = fopen("init_exploit-10.txt", "r");
+		FILE* fichier2 = fopen("init_robe1.txt", "r");
 		if (fichier2 == NULL){
 			printf("Error loading the init file\n");
 			exit(1);
@@ -52,7 +52,7 @@ float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, g
 		initData(Bones, fichier2);
 		fclose(fichier2);
 		s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
-		printf("norme de ref inf a 0.010");
+		//printf("norme de ref inf a 0.010");
 	
 	}
 	else{
@@ -100,11 +100,11 @@ glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 	translation.y = (mov - ref).y;
 	translation.z = (mov - ref).z;
 
-	printf("%f\n", translation.y);
-	printf("ref : %f, %f, %f\n", ref.x, ref.y, ref.z);
+	//printf("%f\n", translation.y);
+	//printf("ref : %f, %f, %f\n", ref.x, ref.y, ref.z);
 
 	if (!IsFiniteNumber(translation.x) || !IsFiniteNumber(translation.y) || !IsFiniteNumber(translation.z)){
-		printf("translation au dessus de 50\n");
+		//printf("translation au dessus de 50\n");
 		translation.x = 0.2f;
 		translation.y = 0.2f;
 		translation.z = 0.2f;

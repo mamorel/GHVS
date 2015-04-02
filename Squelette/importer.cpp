@@ -86,7 +86,7 @@ bool loadModel(const char* file_name,
 	/* extract bone weights */
 	if (mesh->HasBones()){
 		*bone_ctr = (int)mesh->mNumBones;
-		bone_ids = (GLint*)malloc(4* (*point_ctr)  * sizeof(GLint*));
+		bone_ids = (GLint*)malloc(4 * (*point_ctr)  * sizeof(GLint*));
 		weights = (GLfloat*)malloc(4 * (*point_ctr) * sizeof(GLfloat));
 
 		/* an array of bones names, max 256 bones, max name length 64 */
@@ -103,30 +103,30 @@ bool loadModel(const char* file_name,
 			for (int w_i = 0; w_i < num_weights; w_i++){ // pour chaque poids du bone
 				aiVertexWeight weight = bone->mWeights[w_i]; //récupère le poids w_i
 				int vertex_id = (int)weight.mVertexId; // le poids weight est lié à un vertex => vertex_id
-				bone_ids[4*vertex_id + vertexBoneCtr[vertex_id]] = (GLint)b_i; // le vertex vertex_id est influencé par le bone b_i
-				weights[4*vertex_id + vertexBoneCtr[vertex_id]] = (GLfloat)weight.mWeight;
+				bone_ids[4 * vertex_id + vertexBoneCtr[vertex_id]] = (GLint)b_i; // le vertex vertex_id est influencé par le bone b_i
+				weights[4 * vertex_id + vertexBoneCtr[vertex_id]] = (GLfloat)weight.mWeight;
 				vertexBoneCtr[vertex_id]++;
 			}
 		}
-	}
-	// On complète le tableau de bone_ids et weights pour les vertex influencés par moins de 4 bones
-	int jk;
-	for (jk = 0; jk < *point_ctr; jk++){
-		if (vertexBoneCtr[jk] != 4){
-			int mq = vertexBoneCtr[jk];
-			while (mq < 4){
-				bone_ids[4*jk+mq] = (GLint)0;
-				weights[4*jk+mq] = (GLfloat)0.0;
-				mq++;
+
+		// On complète le tableau de bone_ids et weights pour les vertex influencés par moins de 4 bones
+		int jk;
+		for (jk = 0; jk < *point_ctr; jk++){
+			if (vertexBoneCtr[jk] != 4){
+				int mq = vertexBoneCtr[jk];
+				while (mq < 4){
+					bone_ids[4 * jk + mq] = (GLint)0;
+					weights[4 * jk + mq] = (GLfloat)0.0;
+					mq++;
+				}
+			}
+			int sum = bone_ids[4 * jk + 0] + bone_ids[4 * jk + 1] + bone_ids[4 * jk + 2] + bone_ids[4 * jk + 3];
+			float sumW = weights[4 * jk + 0] + weights[4 * jk + 1] + weights[4 * jk + 2] + weights[4 * jk + 3];
+			if ((sumW < 0.9999f) || (sum < 0)){
+				printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
 			}
 		}
-		int sum = bone_ids[4*jk+0] + bone_ids[4*jk+1] + bone_ids[4*jk+2] + bone_ids[4*jk+3];
-		float sumW = weights[4*jk+0] + weights[4*jk+1] + weights[4*jk+2] + weights[4*jk+3];
-		if ((sumW < 0.999f) || (sum < 0)){
-			printf("erreur : %d\n\t sum : %d ; sumW : %f\n", jk, sum, sumW);
-		}	
 	}
-
 	/* copy mesh data into VBOs */
 	if (mesh->HasPositions()) {
 		GLuint vbo;
