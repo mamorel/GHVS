@@ -1,5 +1,6 @@
 #include "matrixCalc.h"
 extern int nb_bones;
+extern char * fichierInit;
 
 /* Kinect :
 ofstream myfile;
@@ -43,7 +44,7 @@ float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, g
 	float s = 0.0f;
 	if (sqrt(glm::dot(ref, ref)) < 0.01f){
 
-		FILE* fichier2 = fopen("init_jean.txt", "r");
+		FILE* fichier2 = fopen(fichierInit, "r");
 		if (fichier2 == NULL){
 			printf("Error loading the init file\n");
 			exit(1);

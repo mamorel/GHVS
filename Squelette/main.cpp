@@ -12,6 +12,7 @@
 bool test = false;
 #define MAX_BONES 32
 int nb_bones = 5;
+char * fichierInit = "";
 //#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 /* Shaders */
@@ -107,7 +108,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_jean.txt", "r");
+	FILE* fichier2 = fopen(fichierInit, "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
@@ -242,161 +243,136 @@ int main(){
 	char ordrePrecedent = '1';
 	double newTime = 0.0f;
 	double elapsedTime = 0.0f;
+	bool quitter = true;
+	bool init = false;
+	bool essai = false;
 	
-	while (!glfwWindowShouldClose(window)){
+	while (!glfwWindowShouldClose(window) && !quitter){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
-
-		if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
-			//main2();
+		if (init){
+			nb_bones = 0;
+			fichierInit = "";
+			MODEL_FILE = "";
+			view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 0.0f, 1.0f));
 		}
 
-		/*
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
-			printf("Bras gauche : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[6][0], Bones[6][1], Bones[6][2], Bones[6][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[6][0], Bones[6][1], Bones[6][2], Bones[6][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[6][0], Bones[6][2]));
+		while (essai){
+			static double time = glfwGetTime();
 
-			printf("Avant-bras gauche : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[7][0], Bones[7][1], Bones[7][2], Bones[7][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[7][0], Bones[7][1], Bones[7][2], Bones[7][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[7][0],Bones[7][2]));
-
-			printf("Main gauche : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[8][0], Bones[8][1], Bones[8][2], Bones[8][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[8][0], Bones[8][1], Bones[8][2], Bones[8][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[8][0],Bones[8][2]));
-
-			printf("Bras droit : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[4][0], Bones[4][1], Bones[4][2], Bones[4][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[4][0], Bones[4][1], Bones[4][2], Bones[4][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[4][0],Bones[4][2]));
-
-			printf("Avant-bras droit : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[5][0], Bones[5][1], Bones[5][2], Bones[5][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[5][0], Bones[5][1], Bones[5][2], Bones[5][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[5][0],Bones[5][2]));
-
-			printf("Main droite : \n");
-			printf("\t- Scale : %f\n", getScale(Bones[9][0], Bones[9][1], Bones[9][2], Bones[9][3], Bones));
-			printf("\t- Rotation : %f\n", getRot(Bones[9][0], Bones[9][1], Bones[9][2], Bones[9][3]));
-			printf("\t- Translation : %f, %f, %f\n \n", getTrans(Bones[9][0], Bones[9][2]));
-		}
-		*/
-		
-		static double time = glfwGetTime();
-
-		/*
-		do{
+			/*
+			do{
 			commande = fopen("commandeOuverture.txt", "r");
 			if (commande == NULL){
-				printf("error reading commande java\n");
-				exit(1);
+			printf("error reading commande java\n");
+			exit(1);
 			}
 			ordrePrecedent = ordre;
 			fscanf(commande, "%c", &ordre);
 			fclose(commande);
 
 			if (ordrePrecedent == '1' && ordre == '0'){
-				glfwHideWindow(window);
+			glfwHideWindow(window);
 			}
 
-		} while (ordre == '0');
+			} while (ordre == '0');
 			glfwShowWindow(window);
-		*/
+			*/
 
-		/* Taille de la fenetre */
-		glfwGetWindowSize(window, &width, &height);
-		//glfwSetWindowPos(window, (int)(screen_width - width) / 4.0, (int)(screen_height - height)/2.0);
-		
-		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
-		glUseProgram(shaderProgram);
-		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-		glViewport(0, 0, width, height);
-		
-		/* Initialisation */
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			/* Taille de la fenetre */
+			glfwGetWindowSize(window, &width, &height);
+			//glfwSetWindowPos(window, (int)(screen_width - width) / 4.0, (int)(screen_height - height)/2.0);
 
-		/* Rotation du modèle */
-		rot1 = 0.0f;
-		rot2 = 0.0f;
-		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			rot1 += 0.07f;
+			glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
+			glUseProgram(shaderProgram);
+			glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+			glViewport(0, 0, width, height);
 
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			rot1 -= 0.07f;
+			/* Initialisation */
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			rot2 += 0.07f;
+			/* Rotation du modèle */
+			rot1 = 0.0f;
+			rot2 = 0.0f;
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+				rot1 += 0.07f;
 
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			rot2 -= 0.07f;
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+				rot1 -= 0.07f;
 
-		glUseProgram(shaderProgram);
-		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
-		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-		
-		glUseProgram(shaderProgramB2);
-		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
+			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+				rot2 += 0.07f;
 
-		/* on dessine le vetement */
-		glEnable(GL_DEPTH_TEST);
-		glUseProgram(shaderProgram);
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0,point_ctr);
+			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+				rot2 -= 0.07f;
 
-		/* puis les positions des os */
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		glUseProgram(shaderProgramB2);
-		glBindVertexArray(bones_vao2);
-		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
-		glDisable(GL_PROGRAM_POINT_SIZE);
+			glUseProgram(shaderProgram);
+			model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		newTime = glfwGetTime();
-		elapsedTime = newTime - time;
+			glUseProgram(shaderProgramB2);
+			glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
-				/* readKinectData */
-		if (!test){
-			readData(Bones);
-		}
-		else{
-			readDataTest(Bones, fichierT);
-		}
-				updateTab(Bones, bone_positions3);
+			/* on dessine le vetement */
+			glEnable(GL_DEPTH_TEST);
+			glUseProgram(shaderProgram);
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, point_ctr);
 
-				glUseProgram(shaderProgramB2);
-				glBufferData(
-					GL_ARRAY_BUFFER,
-					3 * (bone_ctr + 2) * sizeof(float),
-					bone_positions3,
-					GL_STATIC_DRAW
-					);
+			/* puis les positions des os */
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_PROGRAM_POINT_SIZE);
+			glUseProgram(shaderProgramB2);
+			glBindVertexArray(bones_vao2);
+			glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
+			glDisable(GL_PROGRAM_POINT_SIZE);
 
+			newTime = glfwGetTime();
+			elapsedTime = newTime - time;
+
+			/* readKinectData */
+			if (!test){
+				readData(Bones);
+			}
+			else{
+				readDataTest(Bones, fichierT);
+			}
+			updateTab(Bones, bone_positions3);
+
+			glUseProgram(shaderProgramB2);
+			glBufferData(
+				GL_ARRAY_BUFFER,
+				3 * (bone_ctr + 2) * sizeof(float),
+				bone_positions3,
+				GL_STATIC_DRAW
+				);
+
+			glUseProgram(shaderProgram);
+			glUniform1f(uniScale, scaleValue);
+
+			/* update les matrices */
+			updateData(Bones, bone_matrices);
+			int l;
+			for (l = 0; l < nb_bones; l++){
 				glUseProgram(shaderProgram);
-				glUniform1f(uniScale, scaleValue);
+				glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
+			}
 
-				/* update les matrices */
-				updateData(Bones, bone_matrices);
-				int l;
-				for (l = 0; l < nb_bones; l++){
-					glUseProgram(shaderProgram);
-					glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
-				}
-
-					newTime = glfwGetTime();
-					elapsedTime = newTime - time;
-					while (elapsedTime < 0.04){
-						newTime = glfwGetTime();
-						elapsedTime = newTime - time;
-					}
-					time = newTime;
+			newTime = glfwGetTime();
+			elapsedTime = newTime - time;
+			while (elapsedTime < 0.04){
+				newTime = glfwGetTime();
+				elapsedTime = newTime - time;
+			}
+			time = newTime;
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+		}
 	}
 	glDeleteProgram(shaderProgram);
 	glDeleteProgram(shaderProgramB2);
@@ -412,11 +388,6 @@ int main(){
 	}
 
 	glfwTerminate();
-
-/*	for (h = 0; h+2 < 27; h=h+3){
-		printf("%f, %f, %f\n", bone_positions3[h], bone_positions3[h+1], bone_positions3[h+2]);
-	}
-*/
 	return 0;
 }
 
