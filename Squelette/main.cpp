@@ -11,8 +11,8 @@
 
 bool test = false;
 #define MAX_BONES 32
-int nb_bones = 8;
-#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae" // "Sweat8PaintedNormalizedTest5Retry7.dae" et 9 corrects
+int nb_bones = 5;
+//#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 /* Shaders */
 
@@ -84,6 +84,9 @@ GLuint createShader(GLenum type, const GLchar* src);
 void updateTab(glm::vec3 ** Tab, float * maj);
 
 int main(){
+
+	char* MODEL_FILE = "Jean-W.dae";
+
 	FILE* fichierT;
 
 	if (test){
@@ -104,7 +107,7 @@ int main(){
 	}
 
 	/* positions initiales des os du modele dans un txt pour traitement */
-	FILE* fichier2 = fopen("init_robe1.txt", "r");
+	FILE* fichier2 = fopen("init_jean.txt", "r");
 	if (fichier2 == NULL){
 		printf("Error loading the init file\n");
 		exit(1);
@@ -408,7 +411,7 @@ int main(){
 		fclose(fichierT);
 	}
 
-	//glfwTerminate();
+	glfwTerminate();
 
 /*	for (h = 0; h+2 < 27; h=h+3){
 		printf("%f, %f, %f\n", bone_positions3[h], bone_positions3[h+1], bone_positions3[h+2]);
