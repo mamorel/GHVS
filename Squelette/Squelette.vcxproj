@@ -57,8 +57,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\opengl-wrappers\assimp--3.0.1270-sdk\lib\assimp_release-dll_win32;C:\opengl-wrappers\glm\glm;C:\opengl-wrappers\glfw\lib-msvc120;C:\opengl-wrappers\glew\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp.lib;opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;C:\opengl-wrappers\assimp--3.0.1270-sdk\lib\assimp_release-dll_win32;C:\opengl-wrappers\glm\glm;C:\opengl-wrappers\glfw\lib-msvc120;C:\opengl-wrappers\glew\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Kinect10.lib;assimp.lib;opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,14 +80,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="importer.cpp" />
+    <ClCompile Include="Kinect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrixCalc.cpp" />
-    <ClCompile Include="printScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="importer.h" />
+    <ClInclude Include="Kinect.h" />
     <ClInclude Include="matrixCalc.h" />
-    <ClInclude Include="printScreen.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="FragmentShaderFond.txt" />
+    <Text Include="VertexShaderFond.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

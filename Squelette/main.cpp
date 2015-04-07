@@ -1,3 +1,7 @@
+#include <Windows.h>
+#include <NuiApi.h>
+#include <iostream>
+#include "Kinect.h"
 #include <glew.h>
 #include <glfw3.h>
 #include <glm.hpp>
@@ -80,10 +84,50 @@ const GLchar* fragmentSource =
 "	outColor = vec4(0.5-normal-0.5, 1.0);"
 "}";
 
+const GLchar* fragmentSourceK =
+"#version 410 core\n"
+"in vec2 coordTexture;"
+"uniform sampler2D tex;"
+"out vec4 out_Color;"
+"void main()"
+"{"
+"	out_Color = texture(tex, coordTexture);"
+"}";
+
+const GLchar* vertexSourceK =
+"#version 410 core\n"
+"in vec3 in_Vertex;"
+"in vec2 in_TexCoord0;"
+"out vec2 coordTexture;"
+"uniform mat4 view;"
+"uniform mat4 proj;"
+"void main()"
+"{"
+"	gl_Position = proj * view * vec4(in_Vertex, 1.0);"
+"	coordTexture = in_TexCoord0;"
+"}";
+
+
+//macro pour le vbo
+#ifndef BUFFER_OFFSET
+#define BUFFER_OFFSET(offset) ((char*)NULL + (offset))
+#endif
+
 GLFWwindow* initGLFW(int width, int weight, char* title);
 void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
 void updateTab(glm::vec3 ** Tab, float * maj);
+
+static void error_callback(int error, const char* description)
+{
+	fputs(description, stderr);
+}
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+}
 
 int main(){
 
@@ -93,6 +137,8 @@ int main(){
 	//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 
 	FILE* fichierT;
+
+	Kinect kinect;
 
 	if (test){
 		fichierT = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates3.txt", "r"); //"bones-ordonnesTestJeu.txt"
@@ -133,6 +179,68 @@ int main(){
 	GLFWwindow* window = initGLFW(width, height, "PACT");
 	glfwMakeContextCurrent(window);
 	initGLEW();
+	glEnable(GL_DEPTH_TEST);
+
+	//création du fond
+	GLuint vertexShaderK = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShaderK, 1, &vertexSourceK, NULL);
+	glCompileShader(vertexShaderK);
+	GLuint fragmentShaderK = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShaderK, 1, &fragmentSourceK, NULL);
+	glCompileShader(fragmentShaderK);
+
+	GLuint shaderP = glCreateProgram();
+	glAttachShader(shaderP, vertexShaderK);
+	glAttachShader(shaderP, fragmentShaderK);
+	//glBindFragDataLocation(shaderP, 0, "outColor");
+	glLinkProgram(shaderP);
+	glUseProgram(shaderP);
+
+	float fond[] = //coordonnées à changer plus tard
+	{
+		//coordonnées 3D	coord texture
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,	//bas gauche
+		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,	//haut gauche
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,	//bas droit
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f	//haut droit
+	};
+
+	GLuint vboFond, vaoFond;
+
+	glUseProgram(shaderP);
+
+	glGenBuffers(1, &vboFond);
+	glBindBuffer(GL_ARRAY_BUFFER, vboFond);
+
+	glGenVertexArrays(1, &vaoFond);
+	glBindVertexArray(vaoFond);
+
+	glBufferData(GL_VERTEX_ARRAY, 20 * sizeof(float), fond, GL_STATIC_DRAW);
+
+
+	GLint loc = glGetAttribLocation(shaderP, "in_Vertex");
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), BUFFER_OFFSET(0));
+	glEnableVertexAttribArray(loc);
+
+	loc = glGetAttribLocation(shaderP, "in_TexCoord0");
+	glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+	glEnableVertexAttribArray(loc);
+
+
+	glBindBuffer(GL_VERTEX_ARRAY, 0);
+	glBindVertexArray(0);
+
+
+	GLuint textureFond;
+	glGenTextures(1, &textureFond);
+
+	glBindTexture(GL_TEXTURE_2D, textureFond);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	GLubyte* texture = (GLubyte *)malloc(sizeof(char) * 640 * 480 * 4);
+	memset(texture, 0xFF, sizeof(char) * 640 * 480 * 4);
 
 	/* le vao du vetement */
 	GLuint vao;
@@ -218,7 +326,7 @@ int main(){
 	// TSHIRT : 
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.5f, 32.5f, 0.5f),
+		glm::vec3(3.0f, 3.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -246,6 +354,12 @@ int main(){
 	glUniformMatrix4fv(bones_proj_mat_location2, 1, GL_FALSE, glm::value_ptr(proj));
 	GLint bones_model_mat_location2 = glGetUniformLocation(shaderProgramB2, "model");
 	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
+
+	glUseProgram(shaderP);
+	GLint view_mat_locationK = glGetUniformLocation(shaderP, "view");
+	glUniformMatrix4fv(view_mat_locationK, 1, GL_FALSE, glm::value_ptr(view));
+	GLint proj_mat_locationK = glGetUniformLocation(shaderP, "proj");
+	glUniformMatrix4fv(proj_mat_locationK, 1, GL_FALSE, glm::value_ptr(proj));
 
 	FILE* commande;
 	char ordre = '0';
@@ -299,8 +413,15 @@ int main(){
 		}
 
 		while (essai){
-			static double time = glfwGetTime();
+			kinect.update(texture);
+			glUseProgram(shaderP);
+			GLint view_mat_locationK = glGetUniformLocation(shaderP, "view");
+			glUniformMatrix4fv(view_mat_locationK, 1, GL_FALSE, glm::value_ptr(view));
+			GLint proj_mat_locationK = glGetUniformLocation(shaderP, "proj");
+			glUniformMatrix4fv(proj_mat_locationK, 1, GL_FALSE, glm::value_ptr(proj));
 
+
+			static double time = glfwGetTime();
 			/*
 			do{
 			commande = fopen("commandeOuverture.txt", "r");
@@ -330,7 +451,7 @@ int main(){
 			glViewport(0, 0, width, height);
 
 			/* Initialisation */
-			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			/* Rotation du modèle */
@@ -347,6 +468,17 @@ int main(){
 
 			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 				rot2 -= 0.07f;
+
+			//dessin du fond
+			glUseProgram(shaderP);
+			glBindVertexArray(vaoFond);
+
+			glBindTexture(GL_TEXTURE_2D, textureFond);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 480, 0, GL_BGRA, GL_UNSIGNED_BYTE, texture);
+			//(GL_QUADS, 0, 4);
+			glDrawPixels(640, 480, GL_BGRA, GL_UNSIGNED_BYTE, texture);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glBindVertexArray(0);
 
 			glUseProgram(shaderProgram);
 			model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
