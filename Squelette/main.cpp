@@ -11,8 +11,9 @@
 
 bool test = false;
 #define MAX_BONES 32
-int nb_bones = 5;
-char * fichierInit = "";
+int nb_bones = 6;
+//char * fichierInit = "init_jean.txt";
+char * fichierInit = "init_tshirt.txt";
 //#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 /* Shaders */
@@ -86,7 +87,10 @@ void updateTab(glm::vec3 ** Tab, float * maj);
 
 int main(){
 
-	char* MODEL_FILE = "Jean-W.dae";
+	//char* MODEL_FILE = "Jean-W.dae";
+	//char* MODEL_FILE = "Robe1-bonesW2.dae";
+	char* MODEL_FILE = "TSHIRT-P.dae";
+	//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 
 	FILE* fichierT;
 
@@ -208,8 +212,13 @@ int main(){
 	/* Les matrices model, view, projection sont initialisées */
 	glm::mat4 model = glm::mat4(1.0f);
 
+	// PANTALON : glm::vec3(0.5f, 92.5f, 0.5f)
+	// ROBE : glm::vec3(0.5f, 0.5f, 92.5f) de travers !
+	// PULL : 
+	// TSHIRT : 
+
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.5f, 0.5f, 92.5f),
+		glm::vec3(0.5f, 32.5f, 0.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -243,17 +252,47 @@ int main(){
 	char ordrePrecedent = '1';
 	double newTime = 0.0f;
 	double elapsedTime = 0.0f;
-	bool quitter = true;
+	bool quitter = false;
 	bool init = false;
-	bool essai = false;
+	bool essai = true;
 	
 	while (!glfwWindowShouldClose(window) && !quitter){
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
+
 		if (init){
-			nb_bones = 0;
-			fichierInit = "";
-			MODEL_FILE = "";
+			/* LIRE nb_bones */
+			switch (nb_bones){
+			case 0 :
+				fichierInit = "";
+				MODEL_FILE = "";
+				break;
+			case 1 :
+				fichierInit = "";
+				MODEL_FILE = "";
+				break;
+			case 2:
+				fichierInit = "";
+				MODEL_FILE = "";
+			}
+
+			/* Appel du loader */
+			int point_ctr = 0;
+			int bone_ctr = 0;
+			glm::mat4 bone_offset_matrices[MAX_BONES];
+			loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
+			printf("\nNombre de bones : %i\n", bone_ctr);
+
+			/* Initialisation des matrices de bones */
+			glm::mat4 identity = glm::mat4(1.0f);
+			int bone_matrices_loc[MAX_BONES];
+			char name[64];
+			for (int i = 0; i < MAX_BONES; i++){
+				sprintf(name, "bone_matrices[%i]", i);
+				bone_matrices_loc[i] = glGetUniformLocation(shaderProgram, name); // bone_matrices_loc : matrices de bones dans le programme C
+				glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
+			}
+
 			view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f),
 				glm::vec3(0.0f, 0.0f, 0.0f),
 				glm::vec3(0.0f, 0.0f, 1.0f));
