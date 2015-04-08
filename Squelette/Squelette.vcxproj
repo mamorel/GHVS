@@ -82,6 +82,7 @@
     <ClCompile Include="importer.cpp" />
     <ClCompile Include="Kinect.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Main2.cpp" />
     <ClCompile Include="matrixCalc.cpp" />
   </ItemGroup>
   <ItemGroup>

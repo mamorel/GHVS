@@ -181,7 +181,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
 void readData(glm::vec3 ** Bones){
-	FILE* fichier = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt", "r"); //"bones-ordonnesTestJeu.txt"
+	FILE* fichier = fopen("skelcoordinates.txt", "r"); //"\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
 		//exit(1);

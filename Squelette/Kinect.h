@@ -29,6 +29,7 @@ public:
 	/// Handle new color and skeleton data
 	/// </summary>
 	HRESULT                    process(GLubyte* dest);
+	void SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight);
 
 private:
 
