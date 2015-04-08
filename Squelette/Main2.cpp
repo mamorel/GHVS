@@ -21,26 +21,28 @@ char * fichierInit = "init_tshirt.txt";
 
 const GLchar* fragmentSourceK =
 "#version 410 core\n"
-//"in vec2 coordTexture;"
-//"uniform sampler2D tex;"
+"in vec2 coordTexture;"
+"uniform sampler2D tex;"
+//"in vec3 Color;"
 "out vec4 out_Color;"
-"void main()"
-"{"
-//"	out_Color = texture(tex, coordTexture);"
-"	out_Color = vec4(1.0f, 0.0f, 0.0f, 1.0f);"
+"void main() {"
+//"   outColor = vec4(Color, 1.0f);"
+"	out_Color = texture(tex, coordTexture);"
 "}";
 
 const GLchar* vertexSourceK =
 "#version 410 core\n"
-"in vec3 in_Vertex;"
-"in vec2 in_TexCoord0;"
-//"out vec2 coordTexture;"
+"in vec3 pos;"
+"in vec2 texPos;"
+"uniform mat4 model;"
 "uniform mat4 view;"
 "uniform mat4 proj;"
-"void main()"
-"{"
-"	gl_Position = proj * view * vec4(in_Vertex, 1.0);"
-//"	coordTexture = in_TexCoord0;"
+//"out vec3 Color;"
+"out vec2 coordTexture;"
+"void main() {"
+//"	Color = vec3(texPos, 0.0f);"
+"	coordTexture = texPos;"
+"   gl_Position = proj*view*model*vec4(pos, 1.0);"
 "}";
 
 /* Shaders */
@@ -181,7 +183,7 @@ int main()
 
 	Kinect kinect;
 
-	glfwSetErrorCallback(error_callback);
+	//glfwSetErrorCallback(error_callback);
 
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
@@ -283,6 +285,7 @@ int main()
 
 	/* Les matrices model, view, projection sont initialisées */
 	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	// PANTALON : glm::vec3(0.5f, 92.5f, 0.5f)
 	// ROBE : glm::vec3(0.5f, 0.5f, 92.5f) de travers !
@@ -290,7 +293,7 @@ int main()
 	// TSHIRT : glm::vec3(0.5f, 32.5f, 0.5f)
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(3.5f, 3.5f, 3.5f),
+		glm::vec3(0.5f, 32.5f, 0.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
@@ -320,6 +323,31 @@ int main()
 	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 
 	//création du fond
+	glViewport(0, 0, 640, 480);
+
+	GLuint vaoF;
+	glGenVertexArrays(1, &vaoF);
+	glBindVertexArray(vaoF);
+
+	//Vertex Buffer Object
+	GLuint vboF;
+	glGenBuffers(1, &vboF); // Generate 1 buffer
+
+	float vertices[] = {
+		// premiere face
+		-25.0f, 25.0f, -0.5f, 0.0f, 1.0f, //haut gauche
+		25.0f, 25.0f, -0.5f, 1.0f, 1.0f, 
+
+		25.0f, -25.0f, -0.5f, 1.0f, 0.0f,
+		25.0f, -25.0f, -0.5f, 1.0f, 0.0f,
+
+		-25.0f, -25.0f, -0.5f, 0.0f, 0.0f,
+		-25.0f, 25.0f, -0.5f, 0.0f, 1.0f,
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vboF);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+
 	GLuint vertexShaderK = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShaderK, 1, &vertexSourceK, NULL);
 	glCompileShader(vertexShaderK);
@@ -334,44 +362,26 @@ int main()
 	glLinkProgram(shaderP);
 	glUseProgram(shaderP);
 
-	glViewport(0, 0, 640, 480);
+	//Fait le lien entre les données des vertex et les attributs
+	GLint posAttrib = glGetAttribLocation(shaderP, "pos");
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
 
-	float fond[] = //coordonnées à changer plus tard
-	{
-		//coordonnées 3D	coord texture
-		-0.5f, -0.5f, 0.5f, 0.0f, 1.0f,	//bas gauche
-		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,	//haut gauche
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,	//haut droit
+	GLint texAttrib = glGetAttribLocation(shaderP, "texPos");
+	glEnableVertexAttribArray(texAttrib);
+	glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,	//haut droit
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f,	//bas droit
-		-0.5f, -0.5f, 0.5f, 0.0f, 1.0f,	//bas gauche
-	};
+	GLint uniModel2 = glGetUniformLocation(shaderP, "model");
+	GLint uniView2 = glGetUniformLocation(shaderP, "view");
+	GLint uniProj2 = glGetUniformLocation(shaderP, "proj");
 
-	GLuint vboF, vaoF;
+	glm::mat4 modelP = glm::mat4(1.0f);
+	modelP = glm::rotate(modelP, glm::radians(-90.0f), glm::vec3(1.0f,0.0f, 0.0f));
+	glUniformMatrix4fv(uniModel2, 1, GL_FALSE, glm::value_ptr(modelP));
+	glUniformMatrix4fv(uniView2, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(uniProj2, 1, GL_FALSE, glm::value_ptr(proj));
 
 	glUseProgram(shaderP);
-	glGenBuffers(1, &vboF);
-	glBindBuffer(GL_ARRAY_BUFFER, vboF);
-	glBufferData(GL_VERTEX_ARRAY, 30 * sizeof(float), fond, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glGenVertexArrays(1, &vaoF);
-	glBindVertexArray(vaoF);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vboF);
-
-	GLint loc = glGetAttribLocation(shaderP, "in_Vertex");
-	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), BUFFER_OFFSET(0));
-	glEnableVertexAttribArray(loc);
-
-	loc = glGetAttribLocation(shaderP, "in_TexCoord0");
-	glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-	glEnableVertexAttribArray(loc);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_VERTEX_ARRAY, 0);
-	glBindVertexArray(0);
 
 	GLuint textureFond;
 	glGenTextures(1, &textureFond);
@@ -393,7 +403,7 @@ int main()
 		static double time = glfwGetTime();
 
 		glfwGetWindowSize(window, &width, &height);
-
+	
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -407,11 +417,25 @@ int main()
 		vec3(0.0f, 0.0f, 0.0f),
 		vec3(0.0f, 1.0f, 0.0f));
 		*/
+
+		/* on dessine le vetement */
+		//glDisable(GL_DEPTH_TEST);
+		glUseProgram(shaderProgram);
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, point_ctr);
+	
+		/* puis les positions des os */
+/*		glEnable(GL_PROGRAM_POINT_SIZE);
+		glUseProgram(shaderProgramB2);
+		glBindVertexArray(bones_vao2);
+		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
+		glDisable(GL_PROGRAM_POINT_SIZE);
+*/
 		glUseProgram(shaderP);
-		uniProj = glGetUniformLocation(shaderP, "proj");
+		uniProj2 = glGetUniformLocation(shaderP, "proj");
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
-		uniView = glGetUniformLocation(shaderP, "view");
+		uniView2 = glGetUniformLocation(shaderP, "view");
 		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 
 		glEnable(GL_DEPTH_TEST);
@@ -423,50 +447,37 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
 
-		/* on dessine le vetement */
-	/*	//glDisable(GL_DEPTH_TEST);
-		glUseProgram(shaderProgram);
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, point_ctr);
-	*/
-		/* puis les positions des os */
-/*		glEnable(GL_PROGRAM_POINT_SIZE);
-		glUseProgram(shaderProgramB2);
-		glBindVertexArray(bones_vao2);
-		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
-		glDisable(GL_PROGRAM_POINT_SIZE);
-
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
-*/
+
 		/* readKinectData */
-/*		if (!test){
+		if (!test){
 			readData(Bones);
 		}
 		else{
 			readDataTest(Bones, fichierT);
 		}
 		updateTab(Bones, bone_positions3);
-
+		
 		glUseProgram(shaderProgramB2);
-		glBufferData(
+/*		glBufferData(
 			GL_ARRAY_BUFFER,
 			3 * (bone_ctr + 2) * sizeof(float),
 			bone_positions3,
 			GL_STATIC_DRAW
 			);
-
+*/
 		glUseProgram(shaderProgram);
 		glUniform1f(uniScale, scaleValue);
-*/
+
 		/* update les matrices */
-/*		updateData(Bones, bone_matrices);
+		updateData(Bones, bone_matrices);
 		int l;
 		for (l = 0; l < nb_bones; l++){
 			glUseProgram(shaderProgram);
 			glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 		}
-
+		
 		glUseProgram(shaderProgram);
 		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -474,7 +485,7 @@ int main()
 
 		glUseProgram(shaderProgramB2);
 		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
-*/
+		
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
 		while (elapsedTime < 0.04){
