@@ -83,12 +83,12 @@ const GLchar* vertexSource =
 "uniform float scale;"
 
 "void main(){"
-"float a = scale;"
-"mat3 window_scale = mat3("
-"vec3(a, 0.0, 0.0),"
-"vec3(0.0, a, 0.0),"
-"vec3(0.0, 0.0, a)"
-");"
+"float a = 0.50;"
+"mat4 window_scale = mat4("
+"vec4(a, 0.0, 0.0, 0.0),"
+"vec4(0.0, a, 0.0, 0.0),"
+"vec4(0.0, 0.0, a, 0.0),"
+"vec4(0.0, 0.0, 0.0, 1.0)); "
 "	mat4 boneTrans;"
 "	boneTrans = bone_matrices[bone_ids[0]] * weights[0];"
 "	boneTrans += bone_matrices[bone_ids[1]] * weights[1];"
@@ -96,7 +96,7 @@ const GLchar* vertexSource =
 "	boneTrans += bone_matrices[bone_ids[3]] * weights[3];"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * boneTrans * vec4(vpos.x, vpos.y, vpos.z, 1.0);"
+"	gl_Position = proj * view * model * boneTrans * window_scale * vec4(vpos.x, vpos.y, vpos.z, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -138,7 +138,7 @@ int main()
 
 	//char* MODEL_FILE = "Jean-W.dae";
 	//char* MODEL_FILE = "Robe1-bonesW2.dae";
-	char* MODEL_FILE = "TSHIRT-P.dae";
+	char* MODEL_FILE = "TSHIRT-PS.dae";
 	//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 
 	/*if (!Send::activer())
@@ -176,6 +176,7 @@ int main()
 	/* variables */
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
+	float rot3 = 0.0f;
 	int screen_width = 1024;
 	int screen_height = 768;
 	int width = 1024;
@@ -293,13 +294,12 @@ int main()
 	// TSHIRT : glm::vec3(0.5f, 32.5f, 0.5f)
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.5f, 32.5f, 0.5f),
+		glm::vec3(0.5f, 10.5f, 0.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
 
 	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
-	//model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	GLint uniView = glGetUniformLocation(shaderProgram, "view");
@@ -335,14 +335,14 @@ int main()
 
 	float vertices[] = {
 		// premiere face
-		-25.0f, 25.0f, -0.5f, 0.0f, 1.0f, //haut gauche
-		25.0f, 25.0f, -0.5f, 1.0f, 1.0f, 
+		-25.0f, 25.0f, -12.0f, 1.0f, 1.0f, //modifier troisieme coordonnée pour gérer la profondeur
+		25.0f, 25.0f, -12.0f, 0.0f, 1.0f, 
 
-		25.0f, -25.0f, -0.5f, 1.0f, 0.0f,
-		25.0f, -25.0f, -0.5f, 1.0f, 0.0f,
+		25.0f, -25.0f, -12.0f, 0.0f, 0.0f,
+		25.0f, -25.0f, -12.0f, 0.0f, 0.0f,
 
-		-25.0f, -25.0f, -0.5f, 0.0f, 0.0f,
-		-25.0f, 25.0f, -0.5f, 0.0f, 1.0f,
+		-25.0f, -25.0f, -12.0f, 1.0f, 0.0f,//
+		-25.0f, 25.0f, -12.0f, 1.0f, 1.0f,//
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, vboF);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -407,16 +407,38 @@ int main()
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+		glViewport(0, 0, width, height);
 
 		glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//dessin du fond
-		/*	view = glm::lookAt(
-		vec3(3.0f, 3.0f, 3.0f),
-		vec3(0.0f, 0.0f, 0.0f),
-		vec3(0.0f, 1.0f, 0.0f));
-		*/
+		/* Rotation du modèle */
+		rot1 = 0.0f;
+		rot3 = 0.0f;
+		rot2 = 1.0f;
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			rot1 += 0.07f;
+
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			rot1 -= 0.07f;
+
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			rot2 += 0.07f;
+
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			rot2 -= 0.07f;
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			rot3 += 0.07f;
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+			rot3 -= 0.07f;
+
+		glUseProgram(shaderProgram);
+		model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, rot3));
+		model = glm::scale(model, glm::vec3(1.0, rot2, 1.0));
+		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		/* on dessine le vetement */
 		//glDisable(GL_DEPTH_TEST);
@@ -478,11 +500,6 @@ int main()
 			glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 		}
 		
-		glUseProgram(shaderProgram);
-		model = glm::rotate(model, glm::radians(rot2), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(rot1), glm::vec3(0.0f, 0.0f, 1.0f));
-		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-
 		glUseProgram(shaderProgramB2);
 		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
 		
