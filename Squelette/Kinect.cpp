@@ -27,14 +27,14 @@ Kinect::~Kinect()
 	m_pNuiSensor = NULL;
 }
 
-void Kinect::update(GLubyte* dest)
+void Kinect::update(GLubyte* dest, glm::vec3 ** Bones)
 {
 	if (m_pNuiSensor == NULL)
 		return;
 
 	if (((WaitForSingleObject(m_hNextColorFrameEvent, 0)) && (WaitForSingleObject(m_hNextSkeletonEvent, 0))) == WAIT_OBJECT_0)
 	{
-		process(dest);//permet de mettre à jour le process (detection de la video en couleur et squelette)
+		process(dest, Bones);//permet de mettre à jour le process (detection de la video en couleur et squelette)
 	}
 }
 
@@ -112,7 +112,7 @@ HRESULT Kinect::createFirstConnected()
 	return hr;
 }
 
-HRESULT Kinect::process(GLubyte* dest)
+HRESULT Kinect::process(GLubyte* dest, glm::vec3 ** Bones)
 {
 	HRESULT hr;
 	NUI_IMAGE_FRAME imageFrame;
@@ -162,7 +162,7 @@ HRESULT Kinect::process(GLubyte* dest)
 		if (NUI_SKELETON_TRACKED == trackingState)
 		{
 			// We're tracking the skeleton, draw it
-			SaveSkeletonToFile(skeletonFrame.SkeletonData[i], 640, 480); //pas sur pour le 640*480
+			SaveSkeletonToFile(skeletonFrame.SkeletonData[i], 640, 480, Bones); //pas sur pour le 640*480
 		}
 	}
 
@@ -172,11 +172,12 @@ HRESULT Kinect::process(GLubyte* dest)
 	return hr;
 }
 
-void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight)
+void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight, glm::vec3 ** Bones)
 {
-	ofstream myfile;
-	//myfile.open("skelcoordinates3.txt", ios_base::out | ios_base::app); //ouverture en écriture, à la fin du fichier TEST
-	myfile.open("skelcoordinates.txt", ios_base::out);
+	/*	ofstream myfile;
+		//myfile.open("skelcoordinates3.txt", ios_base::out | ios_base::app); //ouverture en écriture, à la fin du fichier TEST
+		myfile.open("skelcoordinates.txt", ios_base::out);
+		*/
 
 	/* PULL */
 	/*
@@ -262,25 +263,43 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 	*/
 
 	/* TSHIRT */
-/*	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
+	/*	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
 
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
 
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y) / 1.6 << "\n";
 
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].y) / 1.6 << "\n";
 
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y) / 1.6 << "\n";
 
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y) / 1.6 << "\n";
-	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y) / 1.6 << "\n";
-*/
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y) / 1.6 << "\n";
+		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y) / 1.6 << "\n";
+		*/
+	Bones[0][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y);
+	Bones[0][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y);
 
+	Bones[1][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y);
+	Bones[1][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y);
+
+	Bones[2][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y);
+	Bones[2][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y);
+
+	Bones[3][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_RIGHT].y);
+	Bones[3][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_RIGHT].y);
+
+	Bones[4][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_CENTER].y);
+	Bones[4][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y);
+
+	Bones[5][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y);
+	Bones[5][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y);
+
+/* NEW TSHIRT 
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) << "\n";
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0)  << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
 
@@ -300,4 +319,5 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y)  << "\n";
 
 	myfile.close();
+*/
 }

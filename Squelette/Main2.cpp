@@ -177,6 +177,7 @@ int main()
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
 	float rot3 = 0.0f;
+	glm::vec3 transla = glm::vec3(0.0f, 0.0f, 0.0f);
 	int screen_width = 1024;
 	int screen_height = 768;
 	int width = 1024;
@@ -399,7 +400,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window))		//boucle principale
 	{
-		kinect.update(texture);
+		kinect.update(texture, Bones);
 		static double time = glfwGetTime();
 
 		glfwGetWindowSize(window, &width, &height);
@@ -413,9 +414,12 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/* Rotation du modèle */
+		model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		rot1 = 0.0f;
-		rot3 = 0.0f;
+		//rot3 = 0.0f;
 		rot2 = 1.0f;
+		transla = glm::vec3(0.0f, 0.0f, 0.0f);
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 			rot1 += 0.07f;
 
@@ -434,8 +438,12 @@ int main()
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			rot3 -= 0.07f;
 
+		transla = 6.0f*getTrans(Bones[0][0], Bones[0][2]);
+		printf("%f\n", rot3);
+
 		glUseProgram(shaderProgram);
 		model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
+		model = glm::translate(model, transla);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, rot3));
 		model = glm::scale(model, glm::vec3(1.0, rot2, 1.0));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -472,15 +480,7 @@ int main()
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
 
-		/* readKinectData */
-		if (!test){
-			readData(Bones);
-		}
-		else{
-			readDataTest(Bones, fichierT);
-		}
-		updateTab(Bones, bone_positions3);
-		
+
 		glUseProgram(shaderProgramB2);
 /*		glBufferData(
 			GL_ARRAY_BUFFER,

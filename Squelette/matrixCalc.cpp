@@ -79,7 +79,7 @@ glm::vec3 getTrans(glm::vec3 ref, glm::vec3 mov){
 		translation.y = 0.2f;
 		translation.z = 0.2f;
 	}
-	printf("trans : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
+	//printf("trans : (%f, %f, %f)\n", translation.x, translation.y, translation.z);
 	return translation;
 }
 

@@ -8,6 +8,10 @@
 #include "resource.h"
 #include <NuiApi.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 class Kinect
 {
 public:
@@ -17,7 +21,7 @@ public:
 	/// <summary>
 	/// Main processing function
 	/// </summary>
-	void                    update(GLubyte* dest);
+	void                    update(GLubyte* dest, glm::vec3 ** Bones);
 
 	/// <summary>
 	/// Create the first connected Kinect found 
@@ -28,8 +32,8 @@ public:
 	/// <summary>
 	/// Handle new color and skeleton data
 	/// </summary>
-	HRESULT                    process(GLubyte* dest);
-	void SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight);
+	HRESULT                    process(GLubyte* dest, glm::vec3 ** Bones);
+	void SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight, glm::vec3 ** Bones);
 
 private:
 
