@@ -13,9 +13,12 @@
 #include "Kinect.h"
 
 #define MAX_BONES 32
-int nb_bones = 6;
+int nb_bones = 10;
+int numVet = 1;
+char * fichierInit = "init_exploit-new10.txt";
+//char * fichierInit = "init_robe1.txt";
 //char * fichierInit = "init_jean.txt";
-char * fichierInit = "init_tshirt.txt";
+//char * fichierInit = "init_tshirt.txt";
 //#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 const GLchar* fragmentSourceK =
@@ -78,7 +81,7 @@ const GLchar* vertexSource =
 "	boneTrans += bone_matrices[bone_ids[3]] * weights[3];"
 "	st = vtexcoord;"
 "	normal = vnormal;"
-"	gl_Position = proj * view * model * boneTrans * window_scale * vec4(vpos.x, vpos.y, vpos.z, 1.0);"
+"	gl_Position = proj * view * model * boneTrans * vec4(vpos.x, vpos.y, vpos.z, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -94,6 +97,7 @@ const GLchar* fragmentSource =
 GLFWwindow* initGLFW(int width, int weight, char* title);
 void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
+void javaCommande(bool quitter, bool essai, int vetement, int ancienVetement);
 
 //macro pour le vbo
 #ifndef BUFFER_OFFSET
@@ -116,11 +120,45 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
+	/* variables */
+	float rot1 = 0.0f;
+	float rot2 = 0.0f;
+	float rot3 = 0.0f;
+	float vitRot = 1.0f;
+	float vitTrans = 1.0f;
+	float rotShoulders = 0.0f;
+	glm::vec3 normShoulders = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 transla = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 transla2 = glm::vec3(0.0f, 0.0f, 0.0f);
+	int screen_width = 1024;
+	int screen_height = 768;
+	int width = 1024;
+	int height = 768;
 
-	//char* MODEL_FILE = "Jean-W.dae";
+	Kinect kinect;
+	
+	FILE* fichierCommande = fopen("", "r");
+	bool quitter = false;
+	bool essai = true;
+	int vetement = 0;
+	int ancienVetement = -1;
+
+	glm::vec3 hipRef = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 hipPos = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	glm::vec3 refRight = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 posRight = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	glm::vec3 refLeft = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 posLeft = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	glm::vec3 centerRef = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 centerPos = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	//char* MODEL_FILE = "Robe1-bonesW2.dae";
-	char* MODEL_FILE = "TSHIRT-PS.dae";
-	//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
+	//char* MODEL_FILE = "Robe1-bonesW2.dae";
+	//char* MODEL_FILE = "TSHIRT-PS.dae";
+	char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 
 	/*if (!Send::activer())
 	cout << "Erreur lors de la création du pipe" << endl;*/
@@ -144,20 +182,6 @@ int main()
 	initData(Bones, fichier2);
 	fclose(fichier2);
 
-	/* variables */
-	float rot1 = 0.0f;
-	float rot2 = 0.0f;
-	float rot3 = 0.0f;
-	float rotShoulders = 0.0f;
-	glm::vec3 normShoulders = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 transla = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 transla2 = glm::vec3(0.0f, 0.0f, 0.0f);
-	int screen_width = 1024;
-	int screen_height = 768;
-	int width = 1024;
-	int height = 768;
-
-	Kinect kinect;
 
 	//glfwSetErrorCallback(error_callback);
 
@@ -222,14 +246,14 @@ int main()
 
 	// PANTALON : glm::vec3(0.5f, 92.5f, 0.5f)
 	// ROBE : glm::vec3(0.5f, 0.5f, 92.5f) de travers !
-	// PULL : 
-	// TSHIRT : glm::vec3(0.5f, 32.5f, 0.5f)
+	// PULL : glm::vec3(0.5f, 3.5f, 0.5f),
+	// TSHIRT : glm::vec3(0.5f, 10.5f, 0.5f)
 
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0.5f, 10.5f, 0.5f),
+		glm::vec3(0.5f, 3.5f, 0.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4 proj = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 100.0f);
+	glm::mat4 proj = glm::perspective(45.0f, 640.0f / 480.0f, 0.1f, 100.0f);
 
 	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -298,9 +322,13 @@ int main()
 	GLint uniProj2 = glGetUniformLocation(shaderP, "proj");
 
 	glm::mat4 modelP = glm::mat4(1.0f);
+	glm::mat4 viewP = glm::lookAt(
+		glm::vec3(0.5f, 10.5f, 0.5f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f));
 	modelP = glm::rotate(modelP, glm::radians(-90.0f), glm::vec3(1.0f,0.0f, 0.0f));
 	glUniformMatrix4fv(uniModel2, 1, GL_FALSE, glm::value_ptr(modelP));
-	glUniformMatrix4fv(uniView2, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(uniView2, 1, GL_FALSE, glm::value_ptr(viewP));
 	glUniformMatrix4fv(uniProj2, 1, GL_FALSE, glm::value_ptr(proj));
 
 	glUseProgram(shaderP);
@@ -318,6 +346,85 @@ int main()
 
 	double newTime = 0.0f;
 	double elapsedTime = 0.0f;
+
+	/* boucle intégration 
+	while(!quitter && !glfwWindowShouldClose(window){
+		glfwHideWindow(window);
+		javaCommande(fichierCommande, quitter, essai, vetement, ancienVetement);
+
+		if(vetement != ancienVetement){
+			if(vetement == 0){
+				nb_bones = 6;
+				fichierInit = "init_tshirt.txt";
+				numVet = 0;
+				vitRot = 1.0f;
+				vitTrans = 7.0f;
+
+				MODEL_FILE = "TSHIRT-PS.dae";
+				hipRef = Bones[0][0];
+				hipPos = Bones[0][2];
+				refRight = Bones[2][1];
+				posRight = Bones[2][3];
+
+				refLeft = Bones[4][1];
+				posLeft = Bones[4][3];
+
+				centerRef = Bones[1][1];
+				centerPos = Bones[1][3];
+
+				view = glm::lookAt(
+				glm::vec3(0.5f, 10.5f, 0.5f),
+				glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 0.0f, 1.0f));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+			}
+			if(vetement == 1){
+				nb_bones = 10;
+				fichierInit = "init_exploit-new10.txt";
+				numVet = 1;
+				vitRot = 0.2f;
+				vitTrans = 0.8f;
+
+				MODEL_FILE = "Sweat8AutoW3-10.dae";
+				hipRef = Bones[0][0];
+				hipPos = Bones[0][2];
+
+				refRight = Bones[2][1];
+				posRight = Bones[2][3];
+
+				refLeft = Bones[3][1];
+				posLeft = Bones[3][3];
+
+				centerRef = Bones[1][1];
+				centerPos = Bones[1][3];
+				view = glm::lookAt(
+				glm::vec3(0.5f, 3.5f, 0.5f),
+				glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 0.0f, 1.0f));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+			}
+			if(essai){
+				// reinitialisation des matrices de bones, chargement du modele
+				int bone_matrices_loc[MAX_BONES];
+				char name[64];
+				for (int i = 0; i < MAX_BONES; i++){
+				sprintf(name, "bone_matrices[%i]", i);
+				bone_matrices_loc[i] = glGetUniformLocation(shaderProgram, name); // bone_matrices_loc : matrices de bones dans le programme C
+				glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
+				}
+
+				loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
+				ancienVetement = vetement;
+				}
+		}
+
+		while(essai){
+		//affichage
+		javaCommande(fichierCommande, quitter, essai, vetement, ancienVetement);
+		glfwShowWindow(window);
+		}
+	}
+	*/
 
 	while (!glfwWindowShouldClose(window))		//boucle principale
 	{
@@ -362,10 +469,22 @@ int main()
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			rot3 -= 0.07f;
 
-		transla = 7.0f*getTrans(Bones[0][0], Bones[0][2]);
-		rotShoulders = getRot(Bones[2][1], Bones[4][1], Bones[2][3], Bones[4][3]);
-		normShoulders = getNormal(Bones[2][0], Bones[4][0], Bones[2][3], Bones[4][3]);
-		transla2 = getTrans(Bones[1][1], Bones[1][3]);
+		hipRef = Bones[0][0];
+		hipPos = Bones[0][2];
+
+		refRight = Bones[2][1];
+		posRight = Bones[2][3];
+
+		refLeft = Bones[3][1];
+		posLeft = Bones[3][3];
+
+		centerRef = Bones[1][1];
+		centerPos = Bones[1][3];
+
+		transla = 0.8f*getTrans(hipRef, hipPos);
+		rotShoulders = 0.2f*getRot(refRight, refLeft, posRight, posLeft);
+		normShoulders = getNormal(refRight, refLeft, posRight, posLeft);
+		transla2 = getTrans(centerRef, centerPos);
 
 		glUseProgram(shaderProgram);
 		model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
@@ -389,7 +508,7 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
-
+		
 		glUseProgram(shaderProgram);
 		glUniform1f(uniScale, scaleValue);
 
@@ -444,4 +563,28 @@ GLuint createShader(GLenum type, const GLchar* src){
 	glCompileShader(shader);
 
 	return shader;
+}
+
+void javaCommande(FILE* fichierComm, bool quitter, bool essai, int vetement, int ancienVetement){
+	char quit;
+	char ess;
+	char vet;
+
+	fscanf(fichierComm, "%c %c %c", &quit, &ess, &vet);
+	
+	if (quitter == '0')
+		quitter = false;
+	else
+		quitter = true;
+
+	if (ess == '0')
+		essai = false;
+	else
+		essai = true;
+	if (vet == '0')
+		vetement = 0;
+	else
+		vetement = 1;
+
+	return;
 }
