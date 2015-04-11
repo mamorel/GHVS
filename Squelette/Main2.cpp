@@ -46,23 +46,6 @@ const GLchar* vertexSourceK =
 
 /* Shaders */
 
-/* Shader pour les points de la Kinect destination */
-const GLchar* fragmentSourceB2 =
-"#version 410 core\n"
-"out vec4 frag_colour;"
-"void main() {"
-"	frag_colour = vec4(1.0, 0.0, 0.0, 1.0);"
-"}";
-
-const GLchar* vertexSourceB2 =
-"#version 410 core\n"
-"layout(location = 0) in vec3 vp;"
-"uniform mat4 proj, view, model;"
-"void main() {"
-"	gl_PointSize = 7.0;"
-"	gl_Position = proj * view * model * vec4(vp, 1.0);"
-"}";
-
 /* Shaders pour le vetement */
 const GLchar* vertexSource =
 "#version 410 core\n"
@@ -111,7 +94,6 @@ const GLchar* fragmentSource =
 GLFWwindow* initGLFW(int width, int weight, char* title);
 void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
-void updateTab(glm::vec3 ** Tab, float * maj);
 
 //macro pour le vbo
 #ifndef BUFFER_OFFSET
@@ -142,8 +124,6 @@ int main()
 
 	/*if (!Send::activer())
 	cout << "Erreur lors de la création du pipe" << endl;*/
-
-	FILE* fichierT;
 
 	/* Le tableau de bones : contiendra les positions des os */
 	glm::vec3 ** Bones;
@@ -215,48 +195,6 @@ int main()
 	loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
 	printf("\nNombre de bones : %i\n", bone_ctr);
 
-	/* Les positions des os du modele de vetement et des données Kinect pour representation */
-	float * bone_positions3 = (float *)malloc(27 * sizeof(float));
-	float bone_positions4[] = {
-		0.031702, -0.305855, 0.561678,
-		-0.053113, -0.306185, 0.490401,
-		-0.136382, -0.286400, 0.348958,
-		-0.212196, -0.227865, 0.227038,
-		0.032215, -0.317140, 0.336961,
-		0.033871, -0.300125, 0.293703,
-		0.110854, -0.314255, 0.495051,
-		0.269807, -0.312715, 0.207836,
-		0.192558, -0.337995, 0.328809,
-	};
-	int h;
-	for (h = 0; h < 27; h++){
-		bone_positions3[h] = bone_positions4[h];
-	}
-
-	/* de même pour les os Kinect */
-	GLuint bones_vao2;
-	glGenVertexArrays(1, &bones_vao2);
-	glBindVertexArray(bones_vao2);
-	GLuint bones_vbo2;
-	glGenBuffers(1, &bones_vbo2);
-	glBindBuffer(GL_ARRAY_BUFFER, bones_vbo2);
-	glBufferData(
-		GL_ARRAY_BUFFER,
-		3 * (bone_ctr + 2) * sizeof(float),
-		bone_positions3,
-		GL_STATIC_DRAW
-		);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(0);
-	GLuint vertexShaderB2 = createShader(GL_VERTEX_SHADER, vertexSourceB2);
-	GLuint fragmentShaderB2 = createShader(GL_FRAGMENT_SHADER, fragmentSourceB2);
-
-	GLuint shaderProgramB2 = glCreateProgram();
-	glAttachShader(shaderProgramB2, vertexShaderB2);
-	glAttachShader(shaderProgramB2, fragmentShaderB2);
-	glBindFragDataLocation(shaderProgramB2, 0, "outColor");
-	glLinkProgram(shaderProgramB2);
-
 	/* Gestion des shaders du modele de vetement */
 	GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
 	GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
@@ -307,18 +245,8 @@ int main()
 	GLint uniScale = glGetUniformLocation(shaderProgram, "scale");
 	glUniform1f(uniScale, scaleValue);
 
-	/* lien avec les uniform mat des 2 shaders des os */
-	glUseProgram(shaderProgramB2);
-	GLint bones_view_mat_location2 = glGetUniformLocation(shaderProgramB2, "view");
-	glUniformMatrix4fv(bones_view_mat_location2, 1, GL_FALSE, glm::value_ptr(view));
-	GLint bones_proj_mat_location2 = glGetUniformLocation(shaderProgramB2, "proj");
-	glUniformMatrix4fv(bones_proj_mat_location2, 1, GL_FALSE, glm::value_ptr(proj));
-	GLint bones_model_mat_location2 = glGetUniformLocation(shaderProgramB2, "model");
-	glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
-
 	//création du fond
 	glViewport(0, 0, 640, 480);
-
 	GLuint vaoF;
 	glGenVertexArrays(1, &vaoF);
 	glBindVertexArray(vaoF);
@@ -453,21 +381,8 @@ int main()
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, point_ctr);
 	
-		/* puis les positions des os */
-/*		glEnable(GL_PROGRAM_POINT_SIZE);
-		glUseProgram(shaderProgramB2);
-		glBindVertexArray(bones_vao2);
-		glDrawArrays(GL_POINTS, 0, bone_ctr + 2);
-		glDisable(GL_PROGRAM_POINT_SIZE);
-*/
+		/* on dessine le fond */
 		glUseProgram(shaderP);
-		uniProj2 = glGetUniformLocation(shaderP, "proj");
-		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-
-		uniView2 = glGetUniformLocation(shaderP, "view");
-		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-
-		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(vaoF);
 		glBindTexture(GL_TEXTURE_2D, textureFond);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 480, 0, GL_BGRA, GL_UNSIGNED_BYTE, texture);
@@ -475,18 +390,6 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
 
-		newTime = glfwGetTime();
-		elapsedTime = newTime - time;
-
-
-		glUseProgram(shaderProgramB2);
-/*		glBufferData(
-			GL_ARRAY_BUFFER,
-			3 * (bone_ctr + 2) * sizeof(float),
-			bone_positions3,
-			GL_STATIC_DRAW
-			);
-*/
 		glUseProgram(shaderProgram);
 		glUniform1f(uniScale, scaleValue);
 
@@ -498,9 +401,7 @@ int main()
 			glUniformMatrix4fv(bone_matrices_loc[l], 1, GL_FALSE, glm::value_ptr(bone_matrices[l]));
 		}
 		
-		glUseProgram(shaderProgramB2);
-		glUniformMatrix4fv(bones_model_mat_location2, 1, GL_FALSE, glm::value_ptr(model));
-		
+		/* controle des fps */
 		newTime = glfwGetTime();
 		elapsedTime = newTime - time;
 		while (elapsedTime < 0.04){
@@ -543,20 +444,4 @@ GLuint createShader(GLenum type, const GLchar* src){
 	glCompileShader(shader);
 
 	return shader;
-}
-
-void updateTab(glm::vec3 ** Tab, float * maj){
-	int i, k;
-	k = 0;
-	for (i = 0; i < nb_bones; i++){
-		maj[k] = Tab[i][3].x;
-		k++;
-		maj[k] = Tab[i][3].y;
-		k++;
-		maj[k] = Tab[i][3].z;
-		k++;
-	}
-	maj[k] = Tab[0][3].x;
-	maj[k + 1] = Tab[0][3].y;
-	maj[k + 2] = Tab[0][3].z;
 }
