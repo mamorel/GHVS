@@ -12,7 +12,6 @@
 #include "printScreen.h"
 #include "Kinect.h"
 
-bool test = false;
 #define MAX_BONES 32
 int nb_bones = 6;
 //char * fichierInit = "init_jean.txt";
@@ -146,14 +145,6 @@ int main()
 
 	FILE* fichierT;
 
-	if (test){
-		fichierT = fopen("\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates3.txt", "r"); //"bones-ordonnesTestJeu.txt"
-		if (fichierT == NULL){
-			printf("error loading the file skelcoordinates3.txt\n");
-			exit(1);
-		}
-	}
-
 	/* Le tableau de bones : contiendra les positions des os */
 	glm::vec3 ** Bones;
 	glm::mat4 * bone_matrices = (glm::mat4 *)malloc(nb_bones * sizeof(glm::mat4));
@@ -177,7 +168,10 @@ int main()
 	float rot1 = 0.0f;
 	float rot2 = 0.0f;
 	float rot3 = 0.0f;
+	float rotShoulders = 0.0f;
+	glm::vec3 normShoulders = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 transla = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 transla2 = glm::vec3(0.0f, 0.0f, 0.0f);
 	int screen_width = 1024;
 	int screen_height = 768;
 	int width = 1024;
@@ -205,8 +199,7 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
-	glewExperimental = GL_TRUE;
-	glewInit();
+	initGLEW();
 	glEnable(GL_DEPTH_TEST);
 
 
@@ -401,10 +394,11 @@ int main()
 	while (!glfwWindowShouldClose(window))		//boucle principale
 	{
 		kinect.update(texture, Bones);
+		readData(Bones);
 		static double time = glfwGetTime();
 
 		glfwGetWindowSize(window, &width, &height);
-	
+
 		glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
 		glUseProgram(shaderProgram);
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
@@ -417,9 +411,11 @@ int main()
 		model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		rot1 = 0.0f;
-		//rot3 = 0.0f;
 		rot2 = 1.0f;
 		transla = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 			rot1 += 0.07f;
 
@@ -438,18 +434,21 @@ int main()
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			rot3 -= 0.07f;
 
-		transla = 6.0f*getTrans(Bones[0][0], Bones[0][2]);
-		printf("%f\n", rot3);
+		transla = 7.0f*getTrans(Bones[0][0], Bones[0][2]);
+		rotShoulders = getRot(Bones[2][1], Bones[4][1], Bones[2][3], Bones[4][3]);
+		normShoulders = getNormal(Bones[2][0], Bones[4][0], Bones[2][3], Bones[4][3]);
+		transla2 = getTrans(Bones[1][1], Bones[1][3]);
 
 		glUseProgram(shaderProgram);
 		model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
 		model = glm::translate(model, transla);
+		model = glm::translate(model, transla2);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, rot3));
+		model = glm::rotate(model, -rotShoulders, normShoulders);
 		model = glm::scale(model, glm::vec3(1.0, rot2, 1.0));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		/* on dessine le vetement */
-		//glDisable(GL_DEPTH_TEST);
 		glUseProgram(shaderProgram);
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, point_ctr);
@@ -473,7 +472,6 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, textureFond);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 640, 480, 0, GL_BGRA, GL_UNSIGNED_BYTE, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		//glDrawPixels(640, 480, GL_BGRA, GL_UNSIGNED_BYTE, texture);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
 

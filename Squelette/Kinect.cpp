@@ -174,10 +174,10 @@ HRESULT Kinect::process(GLubyte* dest, glm::vec3 ** Bones)
 
 void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight, glm::vec3 ** Bones)
 {
-	/*	ofstream myfile;
+		ofstream myfile;
 		//myfile.open("skelcoordinates3.txt", ios_base::out | ios_base::app); //ouverture en écriture, à la fin du fichier TEST
 		myfile.open("skelcoordinates.txt", ios_base::out);
-		*/
+		
 
 	/* PULL */
 	/*
@@ -281,6 +281,7 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y) / 1.6 << "\n";
 		myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y) / 1.6 << "\n";
 		*/
+/*
 	Bones[0][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y);
 	Bones[0][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y);
 
@@ -298,8 +299,10 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 
 	Bones[5][2] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_SHOULDER_LEFT].y);
 	Bones[5][3] = glm::vec3(skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0, skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y);
+	*/
 
-/* NEW TSHIRT 
+/* NEW TSHIRT */
+
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) << "\n";
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0)  << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) / 1.6 << "\n";
 
@@ -319,5 +322,5 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_ELBOW_LEFT].y)  << "\n";
 
 	myfile.close();
-*/
+
 }
