@@ -214,7 +214,7 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 	myfile.close();
 	*/
 
-		/* PULL2 */
+		/* PULL2 *//*
 		if (numVet == 1){
 			myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) << "\n";
 			myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_SPINE].y) << "\n";
@@ -247,6 +247,7 @@ void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth,
 			myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HAND_LEFT].x) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HAND_LEFT].z - 2.0) << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HAND_LEFT].y) << "\n";
 			myfile.close();
 		}
+		*/
 	/* ROBE1 */
 		/*
 	myfile << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].x) / 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].z - 2.0) / 2.0 + 2.0 << " " << (skel.SkeletonPositions[NUI_SKELETON_POSITION_HIP_CENTER].y) / 1.6 << "\n";
