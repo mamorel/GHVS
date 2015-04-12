@@ -13,12 +13,12 @@
 #include "Kinect.h"
 
 #define MAX_BONES 32
-int nb_bones = 10;
-int numVet = 1;
-char * fichierInit = "init_exploit-new10.txt";
+int nb_bones = 6;
+int numVet = 0;
+//char * fichierInit = "init_exploit-new10.txt";
 //char * fichierInit = "init_robe1.txt";
 //char * fichierInit = "init_jean.txt";
-//char * fichierInit = "init_tshirt.txt";
+char * fichierInit = "init_tshirt.txt";
 //#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 const GLchar* fragmentSourceK =
@@ -157,8 +157,8 @@ int main()
 
 	//char* MODEL_FILE = "Robe1-bonesW2.dae";
 	//char* MODEL_FILE = "Robe1-bonesW2.dae";
-	//char* MODEL_FILE = "TSHIRT-PS.dae";
-	char* MODEL_FILE = "Sweat8AutoW3-10.dae";
+	char* MODEL_FILE = "TSHIRT-PS.dae";
+	//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 
 	/*if (!Send::activer())
 	cout << "Erreur lors de la création du pipe" << endl;*/
@@ -469,7 +469,7 @@ int main()
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			rot3 -= 0.07f;
 
-		hipRef = Bones[0][0];
+	/*	hipRef = Bones[0][0];
 		hipPos = Bones[0][2];
 
 		refRight = Bones[2][1];
@@ -480,9 +480,9 @@ int main()
 
 		centerRef = Bones[1][1];
 		centerPos = Bones[1][3];
-
-		transla = 0.8f*getTrans(hipRef, hipPos);
-		rotShoulders = 0.2f*getRot(refRight, refLeft, posRight, posLeft);
+*/
+		transla = vitTrans*getTrans(hipRef, hipPos);
+		rotShoulders = vitRot*getRot(refRight, refLeft, posRight, posLeft);
 		normShoulders = getNormal(refRight, refLeft, posRight, posLeft);
 		transla2 = getTrans(centerRef, centerPos);
 
@@ -581,6 +581,7 @@ void javaCommande(FILE* fichierComm, bool quitter, bool essai, int vetement, int
 		essai = false;
 	else
 		essai = true;
+
 	if (vet == '0')
 		vetement = 0;
 	else
