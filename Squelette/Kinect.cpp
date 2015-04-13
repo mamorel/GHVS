@@ -3,6 +3,9 @@ extern int numVet;
 
 using namespace std;
 
+extern double RightHandX;
+extern double RightHandY;
+
 
 Kinect::Kinect() : m_hNextColorFrameEvent(INVALID_HANDLE_VALUE), //sert a detecter un evenement camera video
 m_pColorStreamHandle(INVALID_HANDLE_VALUE),
@@ -175,6 +178,9 @@ HRESULT Kinect::process(GLubyte* dest, glm::vec3 ** Bones)
 
 void Kinect::SaveSkeletonToFile(const NUI_SKELETON_DATA & skel, int windowWidth, int windowHeight, glm::vec3 ** Bones)
 {
+	RightHandX = (double)skel.SkeletonPositions[NUI_SKELETON_POSITION_HAND_RIGHT].x;
+	RightHandY = (double)skel.SkeletonPositions[NUI_SKELETON_POSITION_HAND_RIGHT].y;
+
 		ofstream myfile;
 		//myfile.open("skelcoordinates3.txt", ios_base::out | ios_base::app); //ouverture en écriture, à la fin du fichier TEST
 		myfile.open("skelcoordinates.txt", ios_base::out);
