@@ -597,7 +597,7 @@ int main()
 
 				glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 200.0f);
 				glUseProgram(shaderCurr);
-				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				/glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 				glViewport(0, 0, width, height);
 
 				glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
