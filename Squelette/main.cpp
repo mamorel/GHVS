@@ -483,16 +483,16 @@ int main()
 		double elapsedTime = 0.0f;
 		bool verif = false;
 
-		GLuint shaderCurr = shaderProgram;
-		glm::mat4 modelCurr = model;
-		GLuint uniModelCurr = uniModel;
-		GLuint vaoCurr = vao;
-		int point_ctrCurr = point_ctr;
-		glm::mat4 * bone_matricesCurr = bone_matrices;
-		glm::vec3 ** BonesCurr = Bones;
+		GLuint shaderCurr = shaderProgramX;
+		glm::mat4 modelCurr = modelX;
+		GLuint uniModelCurr = uniModelX;
+		GLuint vaoCurr = vaoX;
+		int point_ctrCurr = point_ctrX;
+		glm::mat4 * bone_matricesCurr = bone_matricesX;
+		glm::vec3 ** BonesCurr = BonesX;
 		int bone_matrices_locCurr[MAX_BONES];
 		for (int lk = 0; lk < MAX_BONES; lk++){
-			bone_matrices_locCurr[lk] = bone_matrices_loc[lk];
+			bone_matrices_locCurr[lk] = bone_matrices_locX[lk];
 		}
 
 		/* boucle intégration */
@@ -500,10 +500,10 @@ int main()
 			if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 				glfwSetWindowShouldClose(window, GL_TRUE);
 
-			glUseProgram(shaderProgram);
+			glUseProgram(shaderCurr);
 			glfwHideWindow(window);
 			javaCommande(fichierCommande, &quitter, &essai, &vetement);
-			kinect.update(texture, Bones);
+			kinect.update(texture, BonesCurr);
 
 			if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
 				fseek(fichierCommande, 0, SEEK_SET);
@@ -532,7 +532,7 @@ int main()
 					centerRef = Bones[1][1];
 					centerPos = Bones[1][3];
 
-					glUseProgram(shaderProgram);
+					glUseProgram(shaderCurr);
 					view = glm::lookAt(
 						glm::vec3(0.5f, 32.5f, 0.5f),
 						glm::vec3(0.0f, 0.0f, 0.0f),
@@ -560,12 +560,12 @@ int main()
 					centerRef = Bones[1][1];
 					centerPos = Bones[1][3];
 
-					glUseProgram(shaderProgram);
-					view = glm::lookAt(
+					glUseProgram(shaderCurr);
+					viewX = glm::lookAt(
 						glm::vec3(0.5f, 3.5f, 0.5f),
 						glm::vec3(0.0f, 0.0f, 0.0f),
 						glm::vec3(0.0f, 0.0f, 1.0f));
-					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+					glUniformMatrix4fv(uniViewX, 1, GL_FALSE, glm::value_ptr(viewX));
 				}
 			}
 			javaCommande(fichierCommande, &quitter, &essai, &vetement);
@@ -589,14 +589,14 @@ int main()
 					fprintf(fichierCommande, "0 0 1");
 				}
 
-				kinect.update(texture, Bones);
-				readData(Bones, nb_bones);
+				kinect.update(texture, BonesCurr);
+				readData(BonesCurr, nb_bones);
 				static double time = glfwGetTime();
 
 				glfwGetWindowSize(window, &width, &height);
 
 				glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 200.0f);
-				glUseProgram(shaderProgram);
+				glUseProgram(shaderCurr);
 				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 				glViewport(0, 0, width, height);
 
@@ -604,8 +604,8 @@ int main()
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 				/* Rotation du modèle */
-				model = glm::mat4(1.0f);
-				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+				modelCurr = glm::mat4(1.0f);
+				modelCurr = glm::rotate(modelCurr, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 				rot1 = 0.0f;
 				rot2 = 1.0f;
 				transla = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -648,22 +648,22 @@ int main()
 				normShoulders = getNormal(refRight, refLeft, posRight, posLeft);
 				transla2 = getTrans(centerRef, centerPos);
 
-				glUseProgram(shaderProgram);
-				model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
-				model = glm::translate(model, transla);
-				model = glm::translate(model, transla2);
-				model = glm::translate(model, glm::vec3(0.0f, 0.0f, rot3));
-				model = glm::rotate(model, -rotShoulders, normShoulders);
-				model = glm::scale(model, glm::vec3(1.0, rot2, 1.0));
-				glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				glUseProgram(shaderCurr);
+				modelCurr = glm::translate(modelCurr, glm::vec3(0.0f, rot1, 0.0f));
+				modelCurr = glm::translate(modelCurr, transla);
+				modelCurr = glm::translate(modelCurr, transla2);
+				modelCurr = glm::translate(modelCurr, glm::vec3(0.0f, 0.0f, rot3));
+				modelCurr = glm::rotate(modelCurr, -rotShoulders, normShoulders);
+				modelCurr = glm::scale(modelCurr, glm::vec3(1.0, rot2, 1.0));
+				glUniformMatrix4fv(uniModelCurr, 1, GL_FALSE, glm::value_ptr(modelCurr));
+				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				//glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 				/* on dessine le vetement */
 				glEnable(GL_CULL_FACE);
-				glUseProgram(shaderProgram);
-				glBindVertexArray(vao);
-				glDrawArrays(GL_TRIANGLES, 0, point_ctr);
+				glUseProgram(shaderCurr);
+				glBindVertexArray(vaoCurr);
+				glDrawArrays(GL_TRIANGLES, 0, point_ctrCurr);
 
 				/* on dessine le fond */
 				glDisable(GL_CULL_FACE);
