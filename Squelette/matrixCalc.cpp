@@ -1,13 +1,13 @@
 #include "matrixCalc.h"
-extern int nb_bones;
-extern char * fichierInit;
+//extern int nb_bones;
+//extern char * fichierInit;
 
 bool IsFiniteNumber(double x)
 {
 	return (x <= DBL_MAX && x >= -DBL_MAX);
 }
 
-float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, glm::vec3 ** Bones){
+float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, glm::vec3 ** Bones, char * fichierInit, int nb_bones){
 	glm::vec3 ref = ref2 - ref1;
 	glm::vec3 mov = mov2 - mov1;
 	float s = 0.0f;
@@ -19,7 +19,7 @@ float getScale(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3 mov2, g
 			exit(1);
 		}
 
-		initData(Bones, fichier2);
+		initData(Bones, fichier2, nb_bones);
 		fclose(fichier2);
 		s = sqrt(glm::dot(mov, mov)) / sqrt(glm::dot(ref, ref));
 		//printf("norme de ref inf a 0.010");
@@ -111,11 +111,11 @@ glm::mat4 updateMatrix(glm::vec3 ref1, glm::vec3 ref2, glm::vec3 mov1, glm::vec3
 	return res;
 }
 
-void scaleData(glm::vec3 ** Bones){
+void scaleData(glm::vec3 ** Bones, int nb_bones, char * fichierInit){
 	int i;
 	float s = 0.0f;
 	for (i = 0; i < nb_bones; i++){
-		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3], Bones);
+		s = getScale(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3], Bones, fichierInit, nb_bones);
 		Bones[i][0].x = s*Bones[i][0].x;
 		Bones[i][0].y = s*Bones[i][0].y;
 		Bones[i][0].z = s*Bones[i][0].z;
@@ -126,17 +126,17 @@ void scaleData(glm::vec3 ** Bones){
 }
 
 /* Calcule la matrice de transformation de chaque bone et la range dans le tableau correspodant */
-void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices){
+void updateData(glm::vec3 ** Bones, glm::mat4 * bone_matrices, int nb_bones, char * fichierInit){
 	int i;
 	//scaleData(Bones);
 	for (i = 0; i < nb_bones; i++){
 		bone_matrices[i] = updateMatrix(Bones[i][0], Bones[i][1], Bones[i][2], Bones[i][3]);
 	}
-	scaleData(Bones);
+	scaleData(Bones, nb_bones, fichierInit);
 }
 
 /* range dans le tableau des os les positions des os par défaut du modèle (pose au repos) */
-void initData(glm::vec3 ** Bones, FILE* fichier){
+void initData(glm::vec3 ** Bones, FILE* fichier, int nb_bones){
 	int i;
 	for (i = 0; i < nb_bones; i++){
 		fscanf(fichier, "%f %f %f", &Bones[i][0].x, &Bones[i][0].y, &Bones[i][0].z);
@@ -152,7 +152,7 @@ void initData(glm::vec3 ** Bones, FILE* fichier){
 }
 
 /* Lit les données Kinect et les range dans le tableau de Bones(lui même tableau de vec3 */
-void readData(glm::vec3 ** Bones){
+void readData(glm::vec3 ** Bones, int nb_bones){
 	FILE* fichier = fopen("skelcoordinates.txt", "r"); //"\\Users\\Martin\\Desktop\\ColorBasics-D2D-fonctionnel\\skelcoordinates.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
@@ -169,7 +169,7 @@ void readData(glm::vec3 ** Bones){
 	fclose(fichier);
 }
 
-void resetData(glm::vec3 ** Bones){
+void resetData(glm::vec3 ** Bones, int nb_bones){
 		FILE* fichier = fopen("\\Users\\Utilisateur\\Documents\\Kinect Studio\\Samples\\ColorBasics-D2D - fonctionnel\\resetSkel.txt", "r"); //"bones-ordonnesTestJeu.txt"
 	if (fichier == NULL){
 		printf("error loading the file skelcoordinates.txt\n");
