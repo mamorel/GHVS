@@ -1,4 +1,4 @@
-#include <windows.h> 
+ï»¿#include <windows.h> 
 #include <stdio.h>
 #include <tchar.h>
 #include <strsafe.h>
@@ -19,12 +19,13 @@
 #include "Kinect.h"
 
 #define MAX_BONES 32
-int nb_bones = 6;
-int numVet = 0;
-char * fichierInitX = "init_exploit-new10.txt";
+int nb_bones = 10;
+int numVet = 1;
+char * fichierInit = "init_exploit-new10.txt";
+char* MODEL_FILE = "Sweat8AutoW3-10.dae";
 //char * fichierInit = "init_robe1.txt";
 //char * fichierInit = "init_jean.txt";
-char * fichierInit = "init_tshirt.txt";
+//char * fichierInit = "init_tshirt.txt";
 //#define MODEL_FILE "Robe1-bonesW.dae"//"Sweat8AutoW3-10.dae"
 
 const GLchar* fragmentSourceK =
@@ -104,6 +105,7 @@ GLFWwindow* initGLFW(int width, int weight, char* title);
 void initGLEW();
 GLuint createShader(GLenum type, const GLchar* src);
 void javaCommande(FILE* fichierComm, bool * quitter, bool * essai, int * vetement);
+int main2(int levetement);
 
 #define PIPE_TIMEOUT 5000
 #define BUFSIZE 4096
@@ -164,6 +166,7 @@ int do_launch_access()
 	myThread = CreateThread(NULL, 1000, main_thread_proc, NULL, 0, &thread_id);
 }
 
+
 int main()
 {
 	do_launch_access();
@@ -190,7 +193,7 @@ int main()
 			exit(1);
 		}
 
-		fprintf(fichierCommande, "0 1 0");
+		fprintf(fichierCommande, "0 1 1");
 
 		bool quitter = false;
 		bool essai = false;
@@ -211,11 +214,10 @@ int main()
 
 		//char* MODEL_FILE = "Robe1-bonesW2.dae";
 		//char* MODEL_FILE = "Robe1-bonesW2.dae";
-		char* MODEL_FILE = "TSHIRT-PS.dae";
-		//char* MODEL_FILE = "Sweat8AutoW3-10.dae";
+		//char* MODEL_FILE = "TSHIRT-PS.dae";
 
 		/*if (!Send::activer())
-		cout << "Erreur lors de la création du pipe" << endl;*/
+		cout << "Erreur lors de la crÃ©ation du pipe" << endl;*/
 
 		/* Le tableau de bones : contiendra les positions des os */
 		glm::vec3 ** Bones;
@@ -232,8 +234,8 @@ int main()
 			printf("Error loading the init file\n");
 			exit(1);
 		}
-		/* charge les données précédentes */
-		initData(Bones, fichier2, nb_bones);
+		/* charge les donnÃ©es prÃ©cÃ©dentes */
+		initData(Bones, fichier2);
 		fclose(fichier2);
 
 
@@ -295,7 +297,7 @@ int main()
 			glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
 		}
 
-		/* Les matrices model, view, projection sont initialisées */
+		/* Les matrices model, view, projection sont initialisÃ©es */
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
@@ -305,7 +307,7 @@ int main()
 		// TSHIRT : glm::vec3(0.5f, 10.5f, 0.5f)
 
 		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.1f, 10.5f, 0.1f),
+			glm::vec3(0.1f, 3.5f, 0.1f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 proj = glm::perspective(45.0f, (float)height / (float)width, 0.1f, 200.0f);
@@ -325,86 +327,7 @@ int main()
 		glUniform1f(uniScale, scaleValue);
 
 
-		/* Deuxieme vêtement PULL */
-		/* Le tableau de bones : contiendra les positions des os */
-		int nb_bonesX = 10;
-		glm::vec3 ** BonesX;
-		glm::mat4 * bone_matricesX = (glm::mat4 *)malloc(nb_bonesX * sizeof(glm::mat4));
-		BonesX = (glm::vec3 **)malloc(nb_bonesX * sizeof(glm::vec3 *));
-		for (b1 = 0; b1 < nb_bonesX; b1++){
-			BonesX[b1] = (glm::vec3 *)malloc(4 * sizeof(glm::vec3));
-		}
-
-		/* positions initiales des os du modele dans un txt pour traitement */
-		FILE* fichier2X = fopen(fichierInitX, "r");
-		if (fichier2X == NULL){
-			printf("Error loading the initX file\n");
-			exit(1);
-		}
-		/* charge les données précédentes */
-		initData(BonesX, fichier2X, nb_bonesX);
-		fclose(fichier2X);
-
-
-		GLuint vaoX;
-		glGenVertexArrays(1, &vaoX);
-		glBindVertexArray(vaoX);
-
-		/* Appel du loader */
-		int point_ctrX = 0;
-		int bone_ctrX = 0;
-		glm::mat4 bone_offset_matricesX[MAX_BONES];
-		char * MODEL_FILEX = "Sweat8AutoW3-10.dae";
-		loadModel(MODEL_FILEX, &vaoX, &point_ctrX, bone_offset_matricesX, &bone_ctrX);
-		printf("\nNombre de bones : %i\n", bone_ctrX);
-
-		/* Gestion des shaders du modele de vetement */
-		GLuint vertexShaderX = createShader(GL_VERTEX_SHADER, vertexSource);
-		GLuint fragmentShaderX = createShader(GL_FRAGMENT_SHADER, fragmentSource);
-
-		GLuint shaderProgramX = glCreateProgram();
-		glAttachShader(shaderProgramX, vertexShaderX);
-		glAttachShader(shaderProgramX, fragmentShaderX);
-		glBindFragDataLocation(shaderProgramX, 0, "outColor");
-		glLinkProgram(shaderProgramX);
-		glUseProgram(shaderProgramX);
-
-		/* Initialisation des matrices de bones */
-		glm::mat4 identityX = glm::mat4(1.0f);
-		int bone_matrices_locX[MAX_BONES];
-		char nameX[64];
-		for (int i = 0; i < MAX_BONES; i++){
-			sprintf(nameX, "bone_matrices[%i]", i);
-			bone_matrices_locX[i] = glGetUniformLocation(shaderProgramX, nameX); // bone_matrices_loc : matrices de bones dans le programme C
-			glUniformMatrix4fv(bone_matrices_locX[i], 1, GL_FALSE, glm::value_ptr(identityX));
-		}
-
-		/* Les matrices model, view, projection sont initialisées */
-		glm::mat4 modelX = glm::mat4(1.0f);
-		modelX = glm::rotate(modelX, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		glm::mat4 viewX = glm::lookAt(
-			glm::vec3(0.1f, 3.5f, 0.1f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 projX = glm::perspective(45.0f, (float)height / (float)width, 0.1f, 200.0f);
-
-		GLint uniModelX = glGetUniformLocation(shaderProgram, "model");
-		glUniformMatrix4fv(uniModelX, 1, GL_FALSE, glm::value_ptr(modelX));
-
-		GLint uniViewX = glGetUniformLocation(shaderProgram, "view");
-		glUniformMatrix4fv(uniViewX, 1, GL_FALSE, glm::value_ptr(viewX));
-
-		GLint uniProjX = glGetUniformLocation(shaderProgramX, "proj");
-		glUniformMatrix4fv(uniProjX, 1, GL_FALSE, glm::value_ptr(projX));
-
-		/* gere le scaling du modele */
-		float scaleValueX = 1.0f;
-		GLint uniScaleX = glGetUniformLocation(shaderProgram, "scale");
-		glUniform1f(uniScaleX, scaleValueX);
-
-
-		//création du fond
+		//crÃ©ation du fond
 		glViewport(0, 0, 640, 480);
 		GLuint vaoF;
 		glGenVertexArrays(1, &vaoF);
@@ -416,7 +339,7 @@ int main()
 
 		float vertices[] = {
 			// premiere face
-			-25.0f, 25.0f, -18.0f, 1.0f, 1.0f, //modifier troisieme coordonnée pour gérer la profondeur
+			-25.0f, 25.0f, -18.0f, 1.0f, 1.0f, //modifier troisieme coordonnÃ©e pour gÃ©rer la profondeur
 			25.0f, 25.0f, -18.0f, 0.0f, 1.0f,
 
 			25.0f, -25.0f, -18.0f, 0.0f, 0.0f,
@@ -443,7 +366,7 @@ int main()
 		glLinkProgram(shaderP);
 		glUseProgram(shaderP);
 
-		//Fait le lien entre les données des vertex et les attributs
+		//Fait le lien entre les donnÃ©es des vertex et les attributs
 		GLint posAttrib = glGetAttribLocation(shaderP, "pos");
 		glEnableVertexAttribArray(posAttrib);
 		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
@@ -481,96 +404,136 @@ int main()
 
 		double newTime = 0.0f;
 		double elapsedTime = 0.0f;
+		double t = 0.0f;
+		float ay = 30.0f;
 		bool verif = false;
 
-		GLuint shaderCurr = shaderProgramX;
-		glm::mat4 modelCurr = modelX;
-		GLuint uniModelCurr = uniModelX;
-		GLuint vaoCurr = vaoX;
-		int point_ctrCurr = point_ctrX;
-		glm::mat4 * bone_matricesCurr = bone_matricesX;
-		glm::vec3 ** BonesCurr = BonesX;
-		int bone_matrices_locCurr[MAX_BONES];
-		for (int lk = 0; lk < MAX_BONES; lk++){
-			bone_matrices_locCurr[lk] = bone_matrices_locX[lk];
-		}
-
-		/* boucle intégration */
+		/* boucle intÃ©gration */
 		while (!quitter && !glfwWindowShouldClose(window)){
 			if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 				glfwSetWindowShouldClose(window, GL_TRUE);
 
-			glUseProgram(shaderCurr);
+			glUseProgram(shaderProgram);
 			glfwHideWindow(window);
 			javaCommande(fichierCommande, &quitter, &essai, &vetement);
-			kinect.update(texture, BonesCurr);
+			kinect.update(texture, Bones);
 
-			if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
+			double t = glfwGetTime();
+			printf("t: %f\n", t);
+			if (t > 4.0f){
+				printf("je suis rentre\n");
 				fseek(fichierCommande, 0, SEEK_SET);
-				fprintf(fichierCommande, "0 1 1");
+				fprintf(fichierCommande, "0 1 0");
 			}
 
 			if (vetement != ancienVetement){
 				javaCommande(fichierCommande, &quitter, &essai, &vetement);
 				if (vetement == 0){
-					printf("TEST\n");
+					printf("TSHIRT\n");
 					nb_bones = 6;
 					fichierInit = "init_tshirt.txt";
+
+					FILE* fichier2 = fopen(fichierInit, "r");
+					if (fichier2 == NULL){
+						printf("Error loading the init file\n");
+						exit(1);
+					}
+
+					initData(Bones, fichier2);
+					fclose(fichier2);
+
 					numVet = 0;
-					vitRot = 1.0f;
-					vitTrans = 7.0f;
+
 
 					MODEL_FILE = "TSHIRT-PS.dae";
-					hipRef = Bones[0][0];
-					hipPos = Bones[0][2];
-					refRight = Bones[2][1];
-					posRight = Bones[2][3];
-
-					refLeft = Bones[4][1];
-					posLeft = Bones[4][3];
-
-					centerRef = Bones[1][1];
-					centerPos = Bones[1][3];
-
-					glUseProgram(shaderCurr);
-					view = glm::lookAt(
-						glm::vec3(0.5f, 32.5f, 0.5f),
-						glm::vec3(0.0f, 0.0f, 0.0f),
-						glm::vec3(0.0f, 0.0f, 1.0f));
-					glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 				}
 				if (vetement == 1){
 					printf("SWEAT\n");
 					nb_bones = 10;
 					fichierInit = "init_exploit-new10.txt";
+
+					FILE* fichier2 = fopen(fichierInit, "r");
+					if (fichier2 == NULL){
+						printf("Error loading the init file\n");
+						exit(1);
+					}
+
+					initData(Bones, fichier2);
+					fclose(fichier2);
+
 					numVet = 1;
-					vitRot = 0.2f;
-					vitTrans = 0.8f;
+
 
 					MODEL_FILE = "Sweat8AutoW3-10.dae";
-					hipRef = Bones[0][0];
-					hipPos = Bones[0][2];
-
-					refRight = Bones[2][1];
-					posRight = Bones[2][3];
-
-					refLeft = Bones[3][1];
-					posLeft = Bones[3][3];
-
-					centerRef = Bones[1][1];
-					centerPos = Bones[1][3];
-
-					glUseProgram(shaderCurr);
-					viewX = glm::lookAt(
-						glm::vec3(0.5f, 3.5f, 0.5f),
-						glm::vec3(0.0f, 0.0f, 0.0f),
-						glm::vec3(0.0f, 0.0f, 1.0f));
-					glUniformMatrix4fv(uniViewX, 1, GL_FALSE, glm::value_ptr(viewX));
 				}
 			}
-			javaCommande(fichierCommande, &quitter, &essai, &vetement);
-			if (essai){
 
+			javaCommande(fichierCommande, &quitter, &essai, &vetement);
+
+			if (essai){
+				glDeleteBuffers(1, &vao);
+				glDeleteShader(vertexShader);
+				glDeleteShader(fragmentShader);
+				glDeleteProgram(shaderProgram);
+
+				/* le vao du vetement */
+				GLuint vao;
+				glGenVertexArrays(1, &vao);
+				glBindVertexArray(vao);
+
+				printf("chargement\n");
+
+				/* Appel du loader */
+				point_ctr = 0;
+				bone_ctr = 0;
+				//glm::mat4 bone_offset_matrices[MAX_BONES];
+				loadModel(MODEL_FILE, &vao, &point_ctr, bone_offset_matrices, &bone_ctr);
+				printf("\nNombre de bones : %i\n", bone_ctr);
+
+				/* Gestion des shaders du modele de vetement */
+				vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
+				fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
+
+				shaderProgram = glCreateProgram();
+				glAttachShader(shaderProgram, vertexShader);
+				glAttachShader(shaderProgram, fragmentShader);
+				glBindFragDataLocation(shaderProgram, 0, "outColor");
+				glLinkProgram(shaderProgram);
+				glUseProgram(shaderProgram);
+
+				/* Initialisation des matrices de bones */
+				identity = glm::mat4(1.0f);
+
+				for (int i = 0; i < MAX_BONES; i++){
+					sprintf(name, "bone_matrices[%i]", i);
+					bone_matrices_loc[i] = glGetUniformLocation(shaderProgram, name); // bone_matrices_loc : matrices de bones dans le programme C
+					glUniformMatrix4fv(bone_matrices_loc[i], 1, GL_FALSE, glm::value_ptr(identity));
+				}
+
+				/* Les matrices model, view, projection sont initialisÃ©es */
+				model = glm::mat4(1.0f);
+				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				if (numVet == 0)
+					ay = 10.5f;
+				if (numVet == 1)
+					ay = 3.5f;
+
+				view = glm::lookAt(
+					glm::vec3(0.5f, ay, 0.5f),
+					glm::vec3(0.0f, 0.0f, 0.0f),
+					glm::vec3(0.0f, 0.0f, 1.0f));
+				proj = glm::perspective(45.0f, (float)height / (float)width, 0.1f, 200.0f);
+
+				uniModel = glGetUniformLocation(shaderProgram, "model");
+				glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+
+				uniView = glGetUniformLocation(shaderProgram, "view");
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+				uniProj = glGetUniformLocation(shaderProgram, "proj");
+				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				ancienVetement = vetement;
 				verif = true;
 			}
 			//}
@@ -586,26 +549,26 @@ int main()
 
 				if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
 					fseek(fichierCommande, 0, SEEK_SET);
-					fprintf(fichierCommande, "0 0 1");
+					fprintf(fichierCommande, "0 0 0");
 				}
 
-				kinect.update(texture, BonesCurr);
-				readData(BonesCurr, nb_bones);
+				kinect.update(texture, Bones);
+				readData(Bones);
 				static double time = glfwGetTime();
 
 				glfwGetWindowSize(window, &width, &height);
 
 				glm::mat4 proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 200.0f);
-				glUseProgram(shaderCurr);
-				/glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				glUseProgram(shaderProgram);
+				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 				glViewport(0, 0, width, height);
 
 				glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				/* Rotation du modèle */
-				modelCurr = glm::mat4(1.0f);
-				modelCurr = glm::rotate(modelCurr, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+				/* Rotation du modÃ¨le */
+				model = glm::mat4(1.0f);
+				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 				rot1 = 0.0f;
 				rot2 = 1.0f;
 				transla = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -629,41 +592,61 @@ int main()
 				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 					rot3 -= 0.07f;
 
-				vitRot = 1.0f;
-				vitTrans = 15.0f;
+				if (numVet == 0){
+					vitRot = 1.0f;
+					vitTrans = 15.0f;
 
-				hipRef = Bones[0][0];
-				hipPos = Bones[0][2];
-				refRight = Bones[2][1];
-				posRight = Bones[2][3];
 
-				refLeft = Bones[4][1];
-				posLeft = Bones[4][3];
+					hipRef = Bones[0][0];
+					hipPos = Bones[0][2];
+					refRight = Bones[2][1];
+					posRight = Bones[2][3];
 
-				centerRef = Bones[1][1];
-				centerPos = Bones[1][3];
+					refLeft = Bones[4][1];
+					posLeft = Bones[4][3];
+
+					centerRef = Bones[1][1];
+					centerPos = Bones[1][3];
+				}
+
+				if (numVet == 1){
+					vitRot = 0.2f;
+					vitTrans = 0.8f;
+					hipRef = Bones[0][0];
+					hipPos = Bones[0][2];
+
+					refRight = Bones[2][1];
+					posRight = Bones[2][3];
+
+					refLeft = Bones[3][1];
+					posLeft = Bones[3][3];
+
+					centerRef = Bones[1][1];
+					centerPos = Bones[1][3];
+				}
 
 				transla = vitTrans*getTrans(hipRef, hipPos);
 				rotShoulders = vitRot*getRot(refRight, refLeft, posRight, posLeft);
 				normShoulders = getNormal(refRight, refLeft, posRight, posLeft);
 				transla2 = getTrans(centerRef, centerPos);
-
-				glUseProgram(shaderCurr);
-				modelCurr = glm::translate(modelCurr, glm::vec3(0.0f, rot1, 0.0f));
-				modelCurr = glm::translate(modelCurr, transla);
-				modelCurr = glm::translate(modelCurr, transla2);
-				modelCurr = glm::translate(modelCurr, glm::vec3(0.0f, 0.0f, rot3));
-				modelCurr = glm::rotate(modelCurr, -rotShoulders, normShoulders);
-				modelCurr = glm::scale(modelCurr, glm::vec3(1.0, rot2, 1.0));
-				glUniformMatrix4fv(uniModelCurr, 1, GL_FALSE, glm::value_ptr(modelCurr));
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-				//glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				
+				glUseProgram(shaderProgram);
+				model = glm::translate(model, glm::vec3(0.0f, rot1, 0.0f));
+				model = glm::translate(model, transla);
+				model = glm::translate(model, transla2);
+				model = glm::translate(model, glm::vec3(0.0f, 0.0f, rot3));
+				model = glm::rotate(model, -rotShoulders, normShoulders);
+				model = glm::scale(model, glm::vec3(1.0, rot2, 1.0));
+				glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+				
 
 				/* on dessine le vetement */
 				glEnable(GL_CULL_FACE);
-				glUseProgram(shaderCurr);
-				glBindVertexArray(vaoCurr);
-				glDrawArrays(GL_TRIANGLES, 0, point_ctrCurr);
+				glUseProgram(shaderProgram);
+				glBindVertexArray(vao);
+				glDrawArrays(GL_TRIANGLES, 0, point_ctr);
 
 				/* on dessine le fond */
 				glDisable(GL_CULL_FACE);
@@ -679,7 +662,7 @@ int main()
 				glUniform1f(uniScale, scaleValue);
 
 				/* update les matrices */
-				updateData(Bones, bone_matrices, nb_bones, fichierInit);
+				updateData(Bones, bone_matrices);
 				int l;
 				for (l = 0; l < nb_bones; l++){
 					glUseProgram(shaderProgram);
